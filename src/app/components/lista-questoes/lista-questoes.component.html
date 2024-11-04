@@ -1,0 +1,73 @@
+<div class="container">
+  <app-filtro (filtroAplicado)="aplicarFiltros($event)"></app-filtro>
+
+  <div *ngIf="mensagem" class="mensagem-erro">
+    {{ mensagem }}
+  </div>
+
+  <div *ngIf="!mensagem" class="questoes-lista">
+    <div *ngFor="let questao of questoes; let i = index" class="questao-card">
+      <div class="questao-tags">
+        <span class="tag tag-prova">{{ questao.prova }}</span>
+        <span class="tag tag-cargo">{{ questao.cargo }}</span>
+        <span class="tag tag-nivel">{{ questao.nivel }}</span>
+      </div>
+
+      <p class="questao-enunciado">{{ questao.enunciado }}</p>
+
+      <div class="alternativas-lista">
+        <div
+          *ngFor="let alternativa of questao.alternativas"
+          class="alternativa-item"
+          [class.selecionada]="
+            alternativaSelecionada[questao.id] === alternativa.id && !resultado
+          "
+          [class]="obterClasseAlternativa(questao.id, alternativa.id)"
+          (click)="selecionarAlternativa(questao.id, alternativa.id)"
+        >
+          {{ alternativa.texto }}
+        </div>
+      </div>
+
+      <div *ngIf="resultado" class="detalhes">
+        <p>
+          Resposta correta:
+          {{
+            obterTextoAlternativa(
+              questao,
+              resultado.detalhes[i].respostaCorreta
+            )
+          }}
+          <br />
+          Sua resposta:
+          {{
+            obterTextoAlternativa(
+              questao,
+              resultado.detalhes[i].respostaSelecionada
+            )
+          }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="botoes-container">
+    <button
+      class="corrigir-simulado-btn"
+      (click)="corrigirSimulado()"
+      [disabled]="!todasQuestoesRespondidas()"
+    >
+      Corrigir Simulado
+    </button>
+
+    <button class="sortear-questoes-btn" (click)="sortearNovasQuestoes()">
+      Sortear Novas Questões
+    </button>
+  </div>
+
+  <div *ngIf="resultado !== null" class="resultado" style="margin-top: 1rem">
+    Você acertou {{ resultado.acertos }} questões de {{ questoes.length }} ({{
+      resultado.percentual
+    }}%)
+  </div>
+</div>

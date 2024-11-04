@@ -1,0 +1,26 @@
+<form
+  [formGroup]="filtroForm"
+  (ngSubmit)="aplicarFiltros()"
+  class="filtro-grid"
+>
+  <div class="filtro-item">
+    <label for="cargo">Cargo:</label>
+    <select id="cargo" formControlName="cargo">
+      <option value="">Todos</option>
+      <option value="assistente administrativo">
+        Assistente Administrativo
+      </option>
+    </select>
+  </div>
+
+  <div class="filtro-item">
+    <label for="nivel">Nível:</label>
+    <select id="nivel" formControlName="nivel">
+      <option value="">Todos</option>
+      <option value="medio">Médio</option>
+      <option value="superior">Superior</option>
+    </select>
+  </div>
+
+  <button type="submit">Aplicar Filtros</button>
+</form>
