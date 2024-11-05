@@ -108,7 +108,13 @@ export class ListaQuestoesComponent implements OnInit {
       }
     );
 
+    enunciado = this.formatarNegrito(enunciado);
+
     return enunciado;
+  }
+
+  private formatarNegrito(texto: string): string {
+    return texto.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
   }
 
   private questaoReferenciaTexto(questao: Questao): boolean {
