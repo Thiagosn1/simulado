@@ -13,7 +13,7 @@
         <span class="tag tag-nivel">{{ questao.nivel }}</span>
       </div>
 
-      <p class="questao-enunciado">{{ questao.enunciado }}</p>
+      <p class="questao-enunciado" [innerHTML]="questao.enunciado"></p>
 
       <div class="alternativas-lista">
         <div

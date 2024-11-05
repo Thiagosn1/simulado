@@ -5,6 +5,7 @@ import { FiltroComponent } from '../filtro/filtro.component';
 import { CommonModule } from '@angular/common';
 import { catchError, map, of } from 'rxjs';
 import { HistoricoService } from '../../services/historico.service';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 type Resultado = {
   acertos: number;
@@ -31,7 +32,8 @@ export class ListaQuestoesComponent implements OnInit {
 
   constructor(
     private questoesService: QuestoesService,
-    private historicoService: HistoricoService
+    private historicoService: HistoricoService,
+    private sanitizer: DomSanitizer
   ) {}
 
   ngOnInit() {
@@ -70,8 +72,8 @@ export class ListaQuestoesComponent implements OnInit {
 
           return questoesFiltradas.map((questao) => ({
             ...questao,
-            enunciado: this.formatarEnunciado(questao.enunciado),
-          }));
+            enunciado: this.formatarEnunciado(questao.enunciado as string),
+          })) as Questao[];
         }),
         catchError((error) => {
           this.mensagem = 'Ocorreu um erro ao buscar as questões.';
@@ -84,7 +86,7 @@ export class ListaQuestoesComponent implements OnInit {
       });
   }
 
-  private formatarEnunciado(enunciado: string): string {
+  private formatarEnunciado(enunciado: string): SafeHtml {
     enunciado = enunciado.replace(/\$\d+$/, '');
 
     enunciado = enunciado.replace(
@@ -109,12 +111,36 @@ export class ListaQuestoesComponent implements OnInit {
     );
 
     enunciado = this.formatarNegrito(enunciado);
+    enunciado = this.formatarTabela(enunciado);
 
-    return enunciado;
+    return this.sanitizer.bypassSecurityTrustHtml(enunciado);
   }
 
   private formatarNegrito(texto: string): string {
     return texto.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  }
+
+  private formatarTabela(texto: string): string {
+    const tabelaRegex = /\|.*?\|/g;
+    const linhas = texto.match(tabelaRegex);
+
+    if (linhas) {
+      const tabelaHtml = linhas
+        .map((linha) => {
+          const colunas = linha
+            .split('|')
+            .map((coluna) => coluna.trim())
+            .filter((coluna) => coluna);
+          return `<tr>${colunas
+            .map((coluna) => `<td>${coluna}</td>`)
+            .join('')}</tr>`;
+        })
+        .join('');
+
+      texto = texto.replace(tabelaRegex, `<table>${tabelaHtml}</table>`);
+    }
+
+    return texto;
   }
 
   private questaoReferenciaTexto(questao: Questao): boolean {
@@ -125,8 +151,13 @@ export class ListaQuestoesComponent implements OnInit {
       'Na música',
     ];
 
+    const enunciadoTexto =
+      typeof questao.enunciado === 'string'
+        ? questao.enunciado
+        : (questao.enunciado as any).toString();
+
     return palavrasChave.some((palavra) =>
-      questao.enunciado.toLowerCase().includes(palavra.toLowerCase())
+      enunciadoTexto.toLowerCase().includes(palavra.toLowerCase())
     );
   }
 
