@@ -101,7 +101,7 @@
 }
 
 .sortear-questoes-btn {
-  background-color: #047857; /* Uma cor verde para diferenciar */
+  background-color: #047857;
 }
 
 .sortear-questoes-btn:hover {
@@ -124,10 +124,24 @@
   font-size: 1.125rem;
   margin-bottom: 1rem;
   text-align: justify;
-  white-space: pre-line; /* Preserva quebras de linha */
+  white-space: pre-line;
   line-height: 1.6;
 }
 
 .alternativas-lista {
   text-align: justify;
+}
+
+@media (max-width: 480px) {
+  .questao-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+
+  .tag {
+    width: auto;
+    margin-right: 0;
+  }
 }

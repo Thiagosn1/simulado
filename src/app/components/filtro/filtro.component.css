@@ -40,3 +40,20 @@ button {
     background-color: #2563eb;
   }
 }
+
+@media (max-width: 480px) {
+  .filtro-grid {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .filtro-item {
+    width: auto;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  button {
+    width: auto;
+  }
+}
