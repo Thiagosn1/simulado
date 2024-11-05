@@ -27,6 +27,7 @@ export class ListaQuestoesComponent implements OnInit {
   alternativaSelecionada: { [key: string]: number | undefined } = {};
   resultado: Resultado | null = null;
   mensagem: string | null = null;
+  filtrosAtuais: { cargo?: string; nivel?: string } = {};
 
   constructor(
     private questoesService: QuestoesService,
@@ -42,45 +43,39 @@ export class ListaQuestoesComponent implements OnInit {
       .getQuestoes(cargo, nivel)
       .pipe(
         map((questoes) => {
-          return questoes.map((questao) => ({
-            ...questao,
-            enunciado: this.formatarEnunciado(questao.enunciado),
-          }));
-        }),
-        catchError((error) => {
-          if (error.status === 404) {
+          if (nivel && !questoes.some((q) => q.nivel === nivel)) {
+            this.mensagem = `Não existem questões cadastradas para o nível ${nivel}.`;
+            return [];
+          }
+
+          let questoesFiltradas = nivel
+            ? questoes.filter((q) => q.nivel === nivel)
+            : questoes;
+
+          if (questoesFiltradas.length === 0) {
             if (cargo && nivel) {
               this.mensagem = `Nenhuma questão encontrada para o cargo "${cargo}" e nível "${nivel}".`;
             } else if (cargo) {
               this.mensagem = `Nenhuma questão encontrada para o cargo "${cargo}".`;
             } else if (nivel) {
               this.mensagem = `Nenhuma questão encontrada para o nível "${nivel}".`;
-            } else {
-              this.mensagem =
-                'Nenhuma questão encontrada para os filtros aplicados.';
             }
-          } else {
-            this.mensagem = 'Ocorreu um erro ao buscar as questões.';
+            return [];
           }
+
+          return questoesFiltradas.map((questao) => ({
+            ...questao,
+            enunciado: this.formatarEnunciado(questao.enunciado),
+          }));
+        }),
+        catchError((error) => {
+          this.mensagem = 'Ocorreu um erro ao buscar as questões.';
           return of([]);
         })
       )
       .subscribe((questoes) => {
-        if (questoes.length === 0) {
-          if (cargo && nivel) {
-            this.mensagem = `Nenhuma questão encontrada para o cargo "${cargo}" e nível "${nivel}".`;
-          } else if (cargo) {
-            this.mensagem = `Nenhuma questão encontrada para o cargo "${cargo}".`;
-          } else if (nivel) {
-            this.mensagem = `Nenhuma questão encontrada para o nível "${nivel}".`;
-          } else {
-            this.mensagem =
-              'Nenhuma questão encontrada para os filtros aplicados.';
-          }
-        } else {
-          this.mensagem = null;
-          this.questoes = this.sortearQuestoes(questoes, 10);
-        }
+        this.questoes =
+          questoes.length > 0 ? this.sortearQuestoes(questoes, 10) : [];
       });
   }
 
@@ -168,6 +163,7 @@ export class ListaQuestoesComponent implements OnInit {
   }
 
   aplicarFiltros(filtros: { cargo?: string; nivel?: string }) {
+    this.filtrosAtuais = filtros;
     this.carregarQuestoes(filtros.cargo, filtros.nivel);
   }
 
@@ -258,6 +254,7 @@ export class ListaQuestoesComponent implements OnInit {
   sortearNovasQuestoes() {
     this.resultado = null;
     this.alternativaSelecionada = {};
-    this.carregarQuestoes();
+    this.carregarQuestoes(this.filtrosAtuais.cargo, this.filtrosAtuais.nivel);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }

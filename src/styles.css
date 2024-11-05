@@ -1,4 +1,7 @@
-/* You can add global styles to this file, and also import other style files */
-html{
-    background-color: #d5d8dd;
+html {
+  background-color: #d5d8dd;
+}
+
+body {
+  font-family: "Roboto", sans-serif;
 }

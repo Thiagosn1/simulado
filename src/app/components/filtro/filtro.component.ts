@@ -24,13 +24,18 @@ export class FiltroComponent {
   }
 
   aplicarFiltros() {
-    const filtros = this.filtroForm.value;
+    const filtros = {
+      cargo: this.filtroForm.get('cargo')?.value || '',
+      nivel: this.filtroForm.get('nivel')?.value || '',
+    };
+
     if (filtros.cargo) {
       filtros.cargo = this.formatCargo(filtros.cargo);
     }
     if (filtros.nivel) {
       filtros.nivel = this.formatNivel(filtros.nivel);
     }
+
     this.filtroAplicado.emit(filtros);
   }
 
@@ -46,6 +51,7 @@ export class FiltroComponent {
       medio: 'Médio',
       superior: 'Superior',
     };
-    return niveis[nivel.toLowerCase()] || nivel;
+
+    return niveis[nivel] || nivel;
   }
 }
