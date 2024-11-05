@@ -43,14 +43,19 @@ export class ListaQuestoesComponent implements OnInit {
       .getQuestoes(cargo, nivel)
       .pipe(
         map((questoes) => {
-          if (nivel && !questoes.some((q) => q.nivel === nivel)) {
-            this.mensagem = `Não existem questões cadastradas para o nível ${nivel}.`;
-            return [];
+          let questoesFiltradas = questoes;
+
+          if (cargo) {
+            questoesFiltradas = questoesFiltradas.filter(
+              (q) => q.cargo === cargo
+            );
           }
 
-          let questoesFiltradas = nivel
-            ? questoes.filter((q) => q.nivel === nivel)
-            : questoes;
+          if (nivel) {
+            questoesFiltradas = questoesFiltradas.filter(
+              (q) => q.nivel === nivel
+            );
+          }
 
           if (questoesFiltradas.length === 0) {
             if (cargo && nivel) {
