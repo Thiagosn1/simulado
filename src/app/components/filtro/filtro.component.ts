@@ -42,6 +42,7 @@ export class FiltroComponent {
   private formatCargo(cargo: string): string {
     const cargos: { [key: string]: string } = {
       'assistente administrativo': 'Assistente Administrativo',
+      'professor de informatica': 'Professor de Informática',
     };
     return cargos[cargo.toLowerCase()] || cargo;
   }
