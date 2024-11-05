@@ -121,26 +121,65 @@ export class ListaQuestoesComponent implements OnInit {
   }
 
   private formatarTabela(texto: string): string {
-    const tabelaRegex = /\|.*?\|/g;
-    const linhas = texto.match(tabelaRegex);
+    const linhas = texto.split('\n');
+    let tabelaAtual: string[][] = [];
+    let resultado = '';
+    let dentroTabela = false;
 
-    if (linhas) {
-      const tabelaHtml = linhas
-        .map((linha) => {
-          const colunas = linha
-            .split('|')
-            .map((coluna) => coluna.trim())
-            .filter((coluna) => coluna);
-          return `<tr>${colunas
-            .map((coluna) => `<td>${coluna}</td>`)
-            .join('')}</tr>`;
-        })
-        .join('');
+    for (let linha of linhas) {
+      if (linha.includes('|')) {
+        if (!dentroTabela) {
+          dentroTabela = true;
+          tabelaAtual = [];
+        }
+        const colunas = linha
+          .split('|')
+          .map((col) => col.trim())
+          .filter((col) => col);
 
-      texto = texto.replace(tabelaRegex, `<table>${tabelaHtml}</table>`);
+        tabelaAtual.push(colunas);
+      } else {
+        if (dentroTabela) {
+          resultado += this.construirTabelaHTML(tabelaAtual);
+          dentroTabela = false;
+          tabelaAtual = [];
+        }
+        resultado += linha + '\n';
+      }
     }
 
-    return texto;
+    if (dentroTabela) {
+      resultado += this.construirTabelaHTML(tabelaAtual);
+    }
+
+    return resultado;
+  }
+
+  private construirTabelaHTML(linhas: string[][]): string {
+    if (linhas.length === 0) return '';
+
+    let html = '<table class="questao-tabela">';
+
+    html += '<thead><tr>';
+    for (let celula of linhas[0]) {
+      html += `<th>${celula}</th>`;
+    }
+    html += '</tr></thead>';
+
+    html += '<tbody>';
+    for (let i = 1; i < linhas.length; i++) {
+      if (linhas[i].length === 0) continue;
+
+      html += '<tr>';
+      for (let celula of linhas[i]) {
+        if (celula === '-------------' || celula === '------------') continue;
+        html += `<td>${celula}</td>`;
+      }
+      html += '</tr>';
+    }
+    html += '</tbody></table>';
+
+    return html;
   }
 
   private questaoReferenciaTexto(questao: Questao): boolean {
