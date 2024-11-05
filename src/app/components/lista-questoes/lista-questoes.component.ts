@@ -104,7 +104,7 @@ export class ListaQuestoesComponent implements OnInit {
           .map((alt: string) => alt.trim())
           .join('\n');
 
-        return `${introFormatada}\n\n${numeracaoFormatada}\n\n${alternativasFormatadas}`;
+        return `${introFormatada}\n${numeracaoFormatada}\n${alternativasFormatadas}`;
       }
     );
 
