@@ -29,7 +29,13 @@ export class ListaQuestoesComponent implements OnInit {
   resultado: Resultado | null = null;
   mensagem: string | null = null;
   filtrosAtuais: { cargo?: string; nivel?: string } = {};
-  private percentualMinimo = 50;
+  percentualMinimo = 80;
+  questoesDependentes: { [key: string]: string[] } = {
+    '1': ['2'],
+    '3': ['4', '5'],
+    '214': ['215'],
+    '217': ['218'],
+  };
 
   constructor(
     private questoesService: QuestoesService,
@@ -76,7 +82,7 @@ export class ListaQuestoesComponent implements OnInit {
             enunciado: this.formatarEnunciado(questao.enunciado as string),
           })) as Questao[];
         }),
-        catchError((error) => {
+        catchError(() => {
           this.mensagem = 'Ocorreu um erro ao buscar as questões.';
           return of([]);
         })
@@ -183,40 +189,30 @@ export class ListaQuestoesComponent implements OnInit {
     return html;
   }
 
-  private questaoReferenciaTexto(questao: Questao): boolean {
-    const palavrasChave = [
-      'Segundo o texto',
-      'como base o texto',
-      'texto acima',
-      'Na música',
-    ];
-
-    const enunciadoTexto =
-      typeof questao.enunciado === 'string'
-        ? questao.enunciado
-        : (questao.enunciado as any).toString();
-
-    return palavrasChave.some((palavra) =>
-      enunciadoTexto.toLowerCase().includes(palavra.toLowerCase())
-    );
-  }
-
   sortearQuestoes(questoes: Questao[], quantidade: number): Questao[] {
-    const questoesDisponiveis = questoes.filter(
-      (questao) => !this.questaoReferenciaTexto(questao)
-    );
-
     const questoesRespondidas = this.historicoService.getQuestoesRespondidas();
-
-    const totalQuestoes = questoesDisponiveis.length;
+    const totalQuestoes = questoes.length;
     const questoesUnicas = new Set(questoesRespondidas);
     const percentualRespondido = (questoesUnicas.size / totalQuestoes) * 100;
 
-    const questoesNaoRespondidas = questoesDisponiveis.filter(
+    const questoesNaoRespondidas = questoes.filter(
       (q) => !questoesRespondidas.includes(q.id)
     );
 
     const questoesSorteadas: Questao[] = [];
+
+    const adicionarQuestoesDependentes = (questaoSorteada: Questao) => {
+      questoesSorteadas.push(questaoSorteada);
+
+      if (this.questoesDependentes[questaoSorteada.id]) {
+        this.questoesDependentes[questaoSorteada.id].forEach((idDependente) => {
+          const questaoDependente = questoes.find((q) => q.id === idDependente);
+          if (questaoDependente) {
+            questoesSorteadas.push(questaoDependente);
+          }
+        });
+      }
+    };
 
     if (percentualRespondido < this.percentualMinimo) {
       while (
@@ -226,12 +222,14 @@ export class ListaQuestoesComponent implements OnInit {
         const indiceAleatorio = Math.floor(
           Math.random() * questoesNaoRespondidas.length
         );
-        questoesSorteadas.push(
-          questoesNaoRespondidas.splice(indiceAleatorio, 1)[0]
-        );
+        const questaoSorteada = questoesNaoRespondidas.splice(
+          indiceAleatorio,
+          1
+        )[0];
+        adicionarQuestoesDependentes(questaoSorteada);
       }
     } else {
-      const todasQuestoes = [...questoesDisponiveis];
+      const todasQuestoes = [...questoes];
       while (
         questoesSorteadas.length < quantidade &&
         todasQuestoes.length > 0
@@ -239,7 +237,8 @@ export class ListaQuestoesComponent implements OnInit {
         const indiceAleatorio = Math.floor(
           Math.random() * todasQuestoes.length
         );
-        questoesSorteadas.push(todasQuestoes.splice(indiceAleatorio, 1)[0]);
+        const questaoSorteada = todasQuestoes.splice(indiceAleatorio, 1)[0];
+        adicionarQuestoesDependentes(questaoSorteada);
       }
     }
 
