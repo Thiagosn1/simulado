@@ -36,13 +36,6 @@ export class ListaQuestoesComponent implements OnInit {
     '214': ['215'],
     '217': ['218'],
   };
-  questaoPai: { [key: string]: string } = {
-    '2': '1',
-    '4': '3',
-    '5': '3',
-    '215': '214',
-    '218': '217',
-  };
 
   constructor(
     private questoesService: QuestoesService,
@@ -202,64 +195,48 @@ export class ListaQuestoesComponent implements OnInit {
     const questoesUnicas = new Set(questoesRespondidas);
     const percentualRespondido = (questoesUnicas.size / totalQuestoes) * 100;
 
-    const questoesNaoRespondidas = questoes.filter(
-      (q) => !questoesRespondidas.includes(q.id)
+    const todasDependentes = new Set<string>();
+    Object.values(this.questoesDependentes).forEach((deps) =>
+      deps.forEach((id) => todasDependentes.add(id))
     );
 
+    const questoesPrincipais = questoes.filter(
+      (q) => !todasDependentes.has(q.id)
+    );
     const questoesSorteadas: Questao[] = [];
-    const questoesJaIncluidas = new Set<string>();
 
-    const adicionarQuestaoEDependentes = (questao: Questao) => {
-      if (questoesJaIncluidas.has(questao.id)) return;
-
-      if (this.questaoPai[questao.id]) {
-        const questaoPai = questoes.find(
-          (q) => q.id === this.questaoPai[questao.id]
-        );
-        if (questaoPai && !questoesJaIncluidas.has(questaoPai.id)) {
-          adicionarQuestaoEDependentes(questaoPai);
-        }
-      }
-
+    const adicionarGrupoQuestoes = (questao: Questao) => {
       questoesSorteadas.push(questao);
-      questoesJaIncluidas.add(questao.id);
 
       if (this.questoesDependentes[questao.id]) {
         this.questoesDependentes[questao.id].forEach((idDependente) => {
           const questaoDependente = questoes.find((q) => q.id === idDependente);
-          if (questaoDependente && !questoesJaIncluidas.has(idDependente)) {
+          if (questaoDependente) {
             questoesSorteadas.push(questaoDependente);
-            questoesJaIncluidas.add(idDependente);
           }
         });
       }
     };
 
     if (percentualRespondido < this.percentualMinimo) {
+      const naoRespondidas = questoesPrincipais.filter(
+        (q) => !questoesRespondidas.includes(q.id)
+      );
+
       while (
         questoesSorteadas.length < quantidade &&
-        questoesNaoRespondidas.length > 0
+        naoRespondidas.length > 0
       ) {
-        const indiceAleatorio = Math.floor(
-          Math.random() * questoesNaoRespondidas.length
-        );
-        const questaoSorteada = questoesNaoRespondidas.splice(
-          indiceAleatorio,
-          1
-        )[0];
-        adicionarQuestaoEDependentes(questaoSorteada);
+        const idx = Math.floor(Math.random() * naoRespondidas.length);
+        const questao = naoRespondidas.splice(idx, 1)[0];
+        adicionarGrupoQuestoes(questao);
       }
     } else {
-      const todasQuestoes = [...questoes];
-      while (
-        questoesSorteadas.length < quantidade &&
-        todasQuestoes.length > 0
-      ) {
-        const indiceAleatorio = Math.floor(
-          Math.random() * todasQuestoes.length
-        );
-        const questaoSorteada = todasQuestoes.splice(indiceAleatorio, 1)[0];
-        adicionarQuestaoEDependentes(questaoSorteada);
+      const disponiveis = [...questoesPrincipais];
+      while (questoesSorteadas.length < quantidade && disponiveis.length > 0) {
+        const idx = Math.floor(Math.random() * disponiveis.length);
+        const questao = disponiveis.splice(idx, 1)[0];
+        adicionarGrupoQuestoes(questao);
       }
     }
 
