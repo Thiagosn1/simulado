@@ -36,6 +36,13 @@ export class ListaQuestoesComponent implements OnInit {
     '214': ['215'],
     '217': ['218'],
   };
+  questaoPai: { [key: string]: string } = {
+    '2': '1',
+    '4': '3',
+    '5': '3',
+    '215': '214',
+    '218': '217',
+  };
 
   constructor(
     private questoesService: QuestoesService,
@@ -200,15 +207,29 @@ export class ListaQuestoesComponent implements OnInit {
     );
 
     const questoesSorteadas: Questao[] = [];
+    const questoesJaIncluidas = new Set<string>();
 
-    const adicionarQuestoesDependentes = (questaoSorteada: Questao) => {
-      questoesSorteadas.push(questaoSorteada);
+    const adicionarQuestaoEDependentes = (questao: Questao) => {
+      if (questoesJaIncluidas.has(questao.id)) return;
 
-      if (this.questoesDependentes[questaoSorteada.id]) {
-        this.questoesDependentes[questaoSorteada.id].forEach((idDependente) => {
+      if (this.questaoPai[questao.id]) {
+        const questaoPai = questoes.find(
+          (q) => q.id === this.questaoPai[questao.id]
+        );
+        if (questaoPai && !questoesJaIncluidas.has(questaoPai.id)) {
+          adicionarQuestaoEDependentes(questaoPai);
+        }
+      }
+
+      questoesSorteadas.push(questao);
+      questoesJaIncluidas.add(questao.id);
+
+      if (this.questoesDependentes[questao.id]) {
+        this.questoesDependentes[questao.id].forEach((idDependente) => {
           const questaoDependente = questoes.find((q) => q.id === idDependente);
-          if (questaoDependente) {
+          if (questaoDependente && !questoesJaIncluidas.has(idDependente)) {
             questoesSorteadas.push(questaoDependente);
+            questoesJaIncluidas.add(idDependente);
           }
         });
       }
@@ -226,7 +247,7 @@ export class ListaQuestoesComponent implements OnInit {
           indiceAleatorio,
           1
         )[0];
-        adicionarQuestoesDependentes(questaoSorteada);
+        adicionarQuestaoEDependentes(questaoSorteada);
       }
     } else {
       const todasQuestoes = [...questoes];
@@ -238,7 +259,7 @@ export class ListaQuestoesComponent implements OnInit {
           Math.random() * todasQuestoes.length
         );
         const questaoSorteada = todasQuestoes.splice(indiceAleatorio, 1)[0];
-        adicionarQuestoesDependentes(questaoSorteada);
+        adicionarQuestaoEDependentes(questaoSorteada);
       }
     }
 
