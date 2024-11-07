@@ -5,6 +5,14 @@
     {{ mensagem }}
   </div>
 
+  <div *ngIf="resultado !== null" class="resultado-container">
+    <div class="resultado-box">
+      Você acertou {{ resultado.acertos }} questões de {{ questoes.length }} ({{
+        resultado.percentual
+      }}%)
+    </div>
+  </div>
+
   <div *ngIf="!mensagem" class="questoes-lista">
     <div *ngFor="let questao of questoes; let i = index" class="questao-card">
       <div class="questao-tags">
@@ -63,11 +71,5 @@
     <button class="sortear-questoes-btn" (click)="sortearNovasQuestoes()">
       Sortear Novas Questões
     </button>
-  </div>
-
-  <div *ngIf="resultado !== null" class="resultado" style="margin-top: 1rem">
-    Você acertou {{ resultado.acertos }} questões de {{ questoes.length }} ({{
-      resultado.percentual
-    }}%)
   </div>
 </div>

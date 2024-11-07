@@ -29,6 +29,7 @@ export class ListaQuestoesComponent implements OnInit {
   resultado: Resultado | null = null;
   mensagem: string | null = null;
   filtrosAtuais: { cargo?: string; nivel?: string } = {};
+  private percentualMinimo = 50;
 
   constructor(
     private questoesService: QuestoesService,
@@ -207,37 +208,39 @@ export class ListaQuestoesComponent implements OnInit {
 
     const questoesRespondidas = this.historicoService.getQuestoesRespondidas();
 
+    const totalQuestoes = questoesDisponiveis.length;
+    const questoesUnicas = new Set(questoesRespondidas);
+    const percentualRespondido = (questoesUnicas.size / totalQuestoes) * 100;
+
     const questoesNaoRespondidas = questoesDisponiveis.filter(
       (q) => !questoesRespondidas.includes(q.id)
-    );
-    const questoesJaRespondidas = questoesDisponiveis.filter((q) =>
-      questoesRespondidas.includes(q.id)
     );
 
     const questoesSorteadas: Questao[] = [];
 
-    while (
-      questoesSorteadas.length < quantidade &&
-      questoesNaoRespondidas.length > 0
-    ) {
-      const indiceAleatorio = Math.floor(
-        Math.random() * questoesNaoRespondidas.length
-      );
-      questoesSorteadas.push(
-        questoesNaoRespondidas.splice(indiceAleatorio, 1)[0]
-      );
-    }
-
-    while (
-      questoesSorteadas.length < quantidade &&
-      questoesJaRespondidas.length > 0
-    ) {
-      const indiceAleatorio = Math.floor(
-        Math.random() * questoesJaRespondidas.length
-      );
-      questoesSorteadas.push(
-        questoesJaRespondidas.splice(indiceAleatorio, 1)[0]
-      );
+    if (percentualRespondido < this.percentualMinimo) {
+      while (
+        questoesSorteadas.length < quantidade &&
+        questoesNaoRespondidas.length > 0
+      ) {
+        const indiceAleatorio = Math.floor(
+          Math.random() * questoesNaoRespondidas.length
+        );
+        questoesSorteadas.push(
+          questoesNaoRespondidas.splice(indiceAleatorio, 1)[0]
+        );
+      }
+    } else {
+      const todasQuestoes = [...questoesDisponiveis];
+      while (
+        questoesSorteadas.length < quantidade &&
+        todasQuestoes.length > 0
+      ) {
+        const indiceAleatorio = Math.floor(
+          Math.random() * todasQuestoes.length
+        );
+        questoesSorteadas.push(todasQuestoes.splice(indiceAleatorio, 1)[0]);
+      }
     }
 
     return questoesSorteadas;
@@ -289,6 +292,8 @@ export class ListaQuestoesComponent implements OnInit {
       percentual: Number(((acertos / this.questoes.length) * 100).toFixed(2)),
       detalhes: detalhes,
     };
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   obterClasseAlternativa(questaoId: string, alternativaId: number): string {
