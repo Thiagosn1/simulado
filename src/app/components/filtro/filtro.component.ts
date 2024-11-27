@@ -14,12 +14,14 @@ export class FiltroComponent {
   @Output() filtroAplicado = new EventEmitter<{
     cargo?: string;
     nivel?: string;
+    banca?: string;
   }>();
 
   constructor(private fb: FormBuilder) {
     this.filtroForm = this.fb.group({
       cargo: [''],
       nivel: [''],
+      banca: [''],
     });
   }
 
@@ -27,6 +29,7 @@ export class FiltroComponent {
     const filtros = {
       cargo: this.filtroForm.get('cargo')?.value || '',
       nivel: this.filtroForm.get('nivel')?.value || '',
+      banca: this.filtroForm.get('banca')?.value || '',
     };
 
     if (filtros.cargo) {
@@ -35,8 +38,21 @@ export class FiltroComponent {
     if (filtros.nivel) {
       filtros.nivel = this.formatNivel(filtros.nivel);
     }
+    if (filtros.banca) {
+      filtros.banca = this.formatBanca(filtros.banca);
+    }
 
+    console.log('Filtros antes de emitir:', filtros); // Debug
     this.filtroAplicado.emit(filtros);
+  }
+
+  private formatBanca(banca: string): string {
+    const bancas: { [key: string]: string } = {
+      funatec: 'FUNATEC',
+      verbena: 'Instituto Verbena/UFG',
+      ganzaroli: 'Ganzaroli Assessoria',
+    };
+    return bancas[banca.toLowerCase()] || banca;
   }
 
   private formatCargo(cargo: string): string {

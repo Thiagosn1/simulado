@@ -28,9 +28,9 @@ export class ListaQuestoesComponent implements OnInit {
   alternativaSelecionada: { [key: string]: number | undefined } = {};
   resultado: Resultado | null = null;
   mensagem: string | null = null;
-  filtrosAtuais: { cargo?: string; nivel?: string } = {};
+  filtrosAtuais: { cargo?: string; nivel?: string; banca?: string } = {};
   percentualMinimo = 80;
-  questoesDependentes: { [key: string]: string[] } = {
+  private questoesPrincipais: Record<string, string[]> = {
     '1': ['2'],
     '3': ['4', '5'],
     '214': ['215'],
@@ -47,42 +47,54 @@ export class ListaQuestoesComponent implements OnInit {
     this.carregarQuestoes();
   }
 
-  carregarQuestoes(cargo?: string, nivel?: string) {
+  carregarQuestoes(cargo?: string, nivel?: string, banca?: string) {
     this.questoesService
-      .getQuestoes(cargo, nivel)
+      .getQuestoes(cargo, nivel, banca)
       .pipe(
         map((questoes) => {
+          console.log('Questões recebidas:', questoes);
+          console.log('Filtros aplicados:', { cargo, nivel, banca });
+
           let questoesFiltradas = questoes;
 
-          if (cargo) {
+          // Só aplica o filtro se o valor não estiver vazio
+          if (banca && banca.trim() !== '') {
+            console.log('Filtrando por banca:', banca);
+            questoesFiltradas = questoesFiltradas.filter((q) => {
+              console.log('Comparando:', q.banca, banca);
+              return q.banca === banca;
+            });
+          }
+
+          if (cargo && cargo.trim() !== '') {
+            console.log('Filtrando por cargo:', cargo);
             questoesFiltradas = questoesFiltradas.filter(
               (q) => q.cargo === cargo
             );
           }
 
-          if (nivel) {
+          if (nivel && nivel.trim() !== '') {
+            console.log('Filtrando por nível:', nivel);
             questoesFiltradas = questoesFiltradas.filter(
               (q) => q.nivel === nivel
             );
           }
 
+          console.log('Questões após filtro:', questoesFiltradas);
+
           if (questoesFiltradas.length === 0) {
-            if (cargo && nivel) {
-              this.mensagem = `Nenhuma questão encontrada para o cargo "${cargo}" e nível "${nivel}".`;
-            } else if (cargo) {
-              this.mensagem = `Nenhuma questão encontrada para o cargo "${cargo}".`;
-            } else if (nivel) {
-              this.mensagem = `Nenhuma questão encontrada para o nível "${nivel}".`;
-            }
+            let mensagem = 'Nenhuma questão encontrada';
+            if (banca) mensagem += ` para a banca "${banca}"`;
+            if (cargo) mensagem += ` para o cargo "${cargo}"`;
+            if (nivel) mensagem += ` de nível "${nivel}"`;
+            this.mensagem = mensagem + '.';
             return [];
           }
 
-          return questoesFiltradas.map((questao) => ({
-            ...questao,
-            enunciado: this.formatarEnunciado(questao.enunciado as string),
-          })) as Questao[];
+          return questoesFiltradas;
         }),
-        catchError(() => {
+        catchError((err: Error) => {
+          console.error('Erro ao carregar questões:', err);
           this.mensagem = 'Ocorreu um erro ao buscar as questões.';
           return of([]);
         })
@@ -195,9 +207,8 @@ export class ListaQuestoesComponent implements OnInit {
     const questoesUnicas = new Set(questoesRespondidas);
     const percentualRespondido = (questoesUnicas.size / totalQuestoes) * 100;
 
-    const todasDependentes = new Set<string>();
-    Object.values(this.questoesDependentes).forEach((deps) =>
-      deps.forEach((id) => todasDependentes.add(id))
+    const todasDependentes = new Set(
+      Object.values(this.questoesPrincipais).flat()
     );
 
     const questoesPrincipais = questoes.filter(
@@ -205,21 +216,22 @@ export class ListaQuestoesComponent implements OnInit {
     );
     const questoesSorteadas: Questao[] = [];
 
-    const adicionarGrupoQuestoes = (questao: Questao) => {
+    const adicionarQuestaoEDependentes = (questao: Questao) => {
       questoesSorteadas.push(questao);
 
-      if (this.questoesDependentes[questao.id]) {
-        this.questoesDependentes[questao.id].forEach((idDependente) => {
-          const questaoDependente = questoes.find((q) => q.id === idDependente);
+      const dependentes = this.questoesPrincipais[questao.id];
+      if (dependentes) {
+        for (const depId of dependentes) {
+          const questaoDependente = questoes.find((q) => q.id === depId);
           if (questaoDependente) {
             questoesSorteadas.push(questaoDependente);
           }
-        });
+        }
       }
     };
 
     if (percentualRespondido < this.percentualMinimo) {
-      const naoRespondidas = questoesPrincipais.filter(
+      const naoRespondidas = [...questoesPrincipais].filter(
         (q) => !questoesRespondidas.includes(q.id)
       );
 
@@ -229,23 +241,23 @@ export class ListaQuestoesComponent implements OnInit {
       ) {
         const idx = Math.floor(Math.random() * naoRespondidas.length);
         const questao = naoRespondidas.splice(idx, 1)[0];
-        adicionarGrupoQuestoes(questao);
+        adicionarQuestaoEDependentes(questao);
       }
     } else {
       const disponiveis = [...questoesPrincipais];
       while (questoesSorteadas.length < quantidade && disponiveis.length > 0) {
         const idx = Math.floor(Math.random() * disponiveis.length);
         const questao = disponiveis.splice(idx, 1)[0];
-        adicionarGrupoQuestoes(questao);
+        adicionarQuestaoEDependentes(questao);
       }
     }
 
     return questoesSorteadas;
   }
 
-  aplicarFiltros(filtros: { cargo?: string; nivel?: string }) {
+  aplicarFiltros(filtros: { cargo?: string; nivel?: string; banca?: string }) {
     this.filtrosAtuais = filtros;
-    this.carregarQuestoes(filtros.cargo, filtros.nivel);
+    this.carregarQuestoes(filtros.cargo, filtros.nivel, filtros.banca);
   }
 
   selecionarAlternativa(questaoId: string, alternativaId: number) {

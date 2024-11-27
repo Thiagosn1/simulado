@@ -12,15 +12,16 @@ export class QuestoesService {
 
   constructor(private http: HttpClient) {}
 
-  getQuestoes(cargo?: string, nivel?: string): Observable<Questao[]> {
+  getQuestoes(
+    cargo?: string,
+    nivel?: string,
+    banca?: string
+  ): Observable<Questao[]> {
     let params = new HttpParams();
 
-    if (cargo) {
-      params = params.set('cargo', cargo);
-    }
-    if (nivel) {
-      params = params.set('nivel', nivel);
-    }
+    if (cargo) params = params.set('cargo', cargo);
+    if (nivel) params = params.set('nivel', nivel);
+    if (banca) params = params.set('banca', banca);
 
     return this.http.get<Questao[]>(this.apiUrl, { params });
   }

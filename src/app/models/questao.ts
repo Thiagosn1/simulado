@@ -1,10 +1,11 @@
-import { SafeHtml } from "@angular/platform-browser";
+import { SafeHtml } from '@angular/platform-browser';
 
 export interface Questao {
   id: string;
   cargo: string;
   nivel: string;
   prova: string;
+  banca: string;
   enunciado: string | SafeHtml;
   alternativas: { id: number; texto: string }[];
   resposta_correta: number;

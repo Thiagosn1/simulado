@@ -4,15 +4,23 @@
   class="filtro-grid"
 >
   <div class="filtro-item">
+    <label for="banca">Banca:</label>
+    <select id="banca" formControlName="banca">
+      <option value="">Todas</option>
+      <option value="funatec">FUNATEC</option>
+      <option value="verbena">Instituto Verbena/UFG</option>
+      <option value="ganzaroli">Ganzaroli Assessoria</option>
+    </select>
+  </div>
+
+  <div class="filtro-item">
     <label for="cargo">Cargo:</label>
     <select id="cargo" formControlName="cargo">
       <option value="">Todos</option>
       <option value="assistente administrativo">
         Assistente Administrativo
       </option>
-      <option value="professor de informatica">
-        Professor de Informática
-      </option>
+      <option value="professor de informatica">Professor de Informática</option>
     </select>
   </div>
 
