@@ -42,15 +42,17 @@ export class FiltroComponent {
       filtros.banca = this.formatBanca(filtros.banca);
     }
 
-    console.log('Filtros antes de emitir:', filtros); // Debug
+    console.log('Filtros antes de emitir:', filtros);
     this.filtroAplicado.emit(filtros);
   }
 
   private formatBanca(banca: string): string {
     const bancas: { [key: string]: string } = {
       funatec: 'FUNATEC',
-      verbena: 'Instituto Verbena/UFG',
+      aroeira: 'Fundação Aroeira',
       ganzaroli: 'Ganzaroli Assessoria',
+      verbena: 'Instituto Verbena/UFG',
+      itame: 'Itame',
     };
     return bancas[banca.toLowerCase()] || banca;
   }
