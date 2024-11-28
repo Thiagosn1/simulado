@@ -2,6 +2,36 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
+type FiltroValues = {
+  cargo: string;
+  nivel: string;
+  banca: string;
+};
+
+type Mapeamentos = {
+  banca: { [key: string]: string };
+  cargo: { [key: string]: string };
+  nivel: { [key: string]: string };
+};
+
+const MAPEAMENTOS: Mapeamentos = {
+  banca: {
+    funatec: 'FUNATEC',
+    aroeira: 'Fundação Aroeira',
+    ganzaroli: 'Ganzaroli Assessoria',
+    verbena: 'Instituto Verbena/UFG',
+    itame: 'Itame',
+  },
+  cargo: {
+    'assistente administrativo': 'Assistente Administrativo',
+    'professor de informatica': 'Professor de Informática',
+  },
+  nivel: {
+    medio: 'Médio',
+    superior: 'Superior',
+  },
+};
+
 @Component({
   selector: 'app-filtro',
   standalone: true,
@@ -11,11 +41,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 })
 export class FiltroComponent {
   filtroForm: FormGroup;
-  @Output() filtroAplicado = new EventEmitter<{
-    cargo?: string;
-    nivel?: string;
-    banca?: string;
-  }>();
+  @Output() filtroAplicado = new EventEmitter<Partial<FiltroValues>>();
 
   constructor(private fb: FormBuilder) {
     this.filtroForm = this.fb.group({
@@ -26,51 +52,22 @@ export class FiltroComponent {
   }
 
   aplicarFiltros() {
-    const filtros = {
-      cargo: this.filtroForm.get('cargo')?.value || '',
-      nivel: this.filtroForm.get('nivel')?.value || '',
-      banca: this.filtroForm.get('banca')?.value || '',
-    };
+    const valores = this.filtroForm.value as FiltroValues;
 
-    if (filtros.cargo) {
-      filtros.cargo = this.formatCargo(filtros.cargo);
-    }
-    if (filtros.nivel) {
-      filtros.nivel = this.formatNivel(filtros.nivel);
-    }
-    if (filtros.banca) {
-      filtros.banca = this.formatBanca(filtros.banca);
-    }
+    const filtrosFormatados = Object.entries(valores).reduce(
+      (acc, [key, value]) => ({
+        ...acc,
+        [key]: value ? this.formatarValor(key as keyof Mapeamentos, value) : '',
+      }),
+      {} as Partial<FiltroValues>
+    );
 
-    console.log('Filtros antes de emitir:', filtros);
-    this.filtroAplicado.emit(filtros);
+    this.filtroAplicado.emit(filtrosFormatados);
   }
 
-  private formatBanca(banca: string): string {
-    const bancas: { [key: string]: string } = {
-      funatec: 'FUNATEC',
-      aroeira: 'Fundação Aroeira',
-      ganzaroli: 'Ganzaroli Assessoria',
-      verbena: 'Instituto Verbena/UFG',
-      itame: 'Itame',
-    };
-    return bancas[banca.toLowerCase()] || banca;
-  }
-
-  private formatCargo(cargo: string): string {
-    const cargos: { [key: string]: string } = {
-      'assistente administrativo': 'Assistente Administrativo',
-      'professor de informatica': 'Professor de Informática',
-    };
-    return cargos[cargo.toLowerCase()] || cargo;
-  }
-
-  private formatNivel(nivel: string): string {
-    const niveis: { [key: string]: string } = {
-      medio: 'Médio',
-      superior: 'Superior',
-    };
-
-    return niveis[nivel] || nivel;
+  private formatarValor(tipo: keyof Mapeamentos, valor: string): string {
+    const mapeamento = MAPEAMENTOS[tipo];
+    const chave = valor.toLowerCase();
+    return mapeamento[chave] || valor;
   }
 }

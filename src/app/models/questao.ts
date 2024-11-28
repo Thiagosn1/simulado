@@ -6,7 +6,7 @@ export interface Questao {
   nivel: string;
   prova: string;
   banca: string;
-  enunciado: string | SafeHtml;
+  enunciado: string;
   alternativas: { id: number; texto: string }[];
   resposta_correta: number;
 }

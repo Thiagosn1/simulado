@@ -5,7 +5,6 @@ import { FiltroComponent } from '../filtro/filtro.component';
 import { CommonModule } from '@angular/common';
 import { catchError, map, of } from 'rxjs';
 import { HistoricoService } from '../../services/historico.service';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 type Resultado = {
   acertos: number;
@@ -39,9 +38,19 @@ export class ListaQuestoesComponent implements OnInit {
 
   constructor(
     private questoesService: QuestoesService,
-    private historicoService: HistoricoService,
-    private sanitizer: DomSanitizer
-  ) {}
+    private historicoService: HistoricoService
+  ) {
+    // Monitorar mudanças no histórico
+    this.historicoService
+      .getHistoricoObservable()
+      .subscribe((questoesRespondidas) => {
+        console.log(
+          'Histórico atualizado:',
+          questoesRespondidas.size,
+          'questões'
+        );
+      });
+  }
 
   ngOnInit() {
     this.carregarQuestoes();
@@ -52,42 +61,25 @@ export class ListaQuestoesComponent implements OnInit {
       .getQuestoes(cargo, nivel, banca)
       .pipe(
         map((questoes) => {
-          console.log('Questões recebidas:', questoes);
-          console.log('Filtros aplicados:', { cargo, nivel, banca });
+          const filtros = {
+            banca: banca?.trim(),
+            cargo: cargo?.trim(),
+            nivel: nivel?.trim(),
+          };
 
-          let questoesFiltradas = questoes;
-
-          // Só aplica o filtro se o valor não estiver vazio
-          if (banca && banca.trim() !== '') {
-            console.log('Filtrando por banca:', banca);
-            questoesFiltradas = questoesFiltradas.filter((q) => {
-              console.log('Comparando:', q.banca, banca);
-              return q.banca === banca;
+          const questoesFiltradas = questoes.filter((questao) => {
+            return Object.entries(filtros).every(([campo, valor]) => {
+              return !valor || questao[campo as keyof typeof questao] === valor;
             });
-          }
-
-          if (cargo && cargo.trim() !== '') {
-            console.log('Filtrando por cargo:', cargo);
-            questoesFiltradas = questoesFiltradas.filter(
-              (q) => q.cargo === cargo
-            );
-          }
-
-          if (nivel && nivel.trim() !== '') {
-            console.log('Filtrando por nível:', nivel);
-            questoesFiltradas = questoesFiltradas.filter(
-              (q) => q.nivel === nivel
-            );
-          }
-
-          console.log('Questões após filtro:', questoesFiltradas);
+          });
 
           if (questoesFiltradas.length === 0) {
-            let mensagem = 'Nenhuma questão encontrada';
-            if (banca) mensagem += ` para a banca "${banca}"`;
-            if (cargo) mensagem += ` para o cargo "${cargo}"`;
-            if (nivel) mensagem += ` de nível "${nivel}"`;
-            this.mensagem = mensagem + '.';
+            const filtrosAplicados = Object.entries(filtros)
+              .filter(([_, valor]) => valor)
+              .map(([campo, valor]) => ` para ${campo} "${valor}"`)
+              .join('');
+
+            this.mensagem = `Nenhuma questão encontrada${filtrosAplicados}.`;
             return [];
           }
 
@@ -99,157 +91,123 @@ export class ListaQuestoesComponent implements OnInit {
           return of([]);
         })
       )
-      .subscribe((questoes) => {
+      .subscribe(async (questoes) => {
+        const todasRespondidas =
+          await this.historicoService.verificarTodasRespondidas(
+            questoes.length
+          );
+        if (todasRespondidas) {
+          console.log('Histórico limpo - Iniciando novo ciclo de questões');
+        }
+
         this.questoes =
           questoes.length > 0 ? this.sortearQuestoes(questoes, 10) : [];
       });
   }
 
-  private formatarEnunciado(enunciado: string): SafeHtml {
-    enunciado = enunciado.replace(/\$\d+$/, '');
-
-    enunciado = enunciado.replace(
-      /(.*?(?:relacione as colunas a seguir|assinale a alternativa.*?:))((?:\s*\d-[^(].*?)+)((?:\s*\(\s*\).*?)+)$/is,
-      (_, intro, numeracao, alternativas) => {
-        const introFormatada = intro.trim();
-
-        const numeracaoFormatada = numeracao
-          .split(/(?=\d-)/)
-          .filter(Boolean)
-          .map((item: string) => item.trim())
-          .join('\n');
-
-        const alternativasFormatadas = alternativas
-          .split(/(?=\(\s*\))/)
-          .filter(Boolean)
-          .map((alt: string) => alt.trim())
-          .join('\n');
-
-        return `${introFormatada}\n${numeracaoFormatada}\n${alternativasFormatadas}`;
-      }
-    );
-
-    enunciado = this.formatarNegrito(enunciado);
-    enunciado = this.formatarTabela(enunciado);
-
-    return this.sanitizer.bypassSecurityTrustHtml(enunciado);
-  }
-
-  private formatarNegrito(texto: string): string {
-    return texto.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  }
-
-  private formatarTabela(texto: string): string {
-    const linhas = texto.split('\n');
-    let tabelaAtual: string[][] = [];
-    let resultado = '';
-    let dentroTabela = false;
-
-    for (let linha of linhas) {
-      if (linha.includes('|')) {
-        if (!dentroTabela) {
-          dentroTabela = true;
-          tabelaAtual = [];
-        }
-        const colunas = linha
-          .split('|')
-          .map((col) => col.trim())
-          .filter((col) => col);
-
-        tabelaAtual.push(colunas);
-      } else {
-        if (dentroTabela) {
-          resultado += this.construirTabelaHTML(tabelaAtual);
-          dentroTabela = false;
-          tabelaAtual = [];
-        }
-        resultado += linha + '\n';
-      }
-    }
-
-    if (dentroTabela) {
-      resultado += this.construirTabelaHTML(tabelaAtual);
-    }
-
-    return resultado;
-  }
-
-  private construirTabelaHTML(linhas: string[][]): string {
-    if (linhas.length === 0) return '';
-
-    let html = '<table class="questao-tabela">';
-
-    html += '<thead><tr>';
-    for (let celula of linhas[0]) {
-      html += `<th>${celula}</th>`;
-    }
-    html += '</tr></thead>';
-
-    html += '<tbody>';
-    for (let i = 1; i < linhas.length; i++) {
-      if (linhas[i].length === 0) continue;
-
-      html += '<tr>';
-      for (let celula of linhas[i]) {
-        if (celula === '-------------' || celula === '------------') continue;
-        html += `<td>${celula}</td>`;
-      }
-      html += '</tr>';
-    }
-    html += '</tbody></table>';
-
-    return html;
+  formatarEnunciado(enunciado: string): string {
+    return enunciado.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
   }
 
   sortearQuestoes(questoes: Questao[], quantidade: number): Questao[] {
     const questoesRespondidas = this.historicoService.getQuestoesRespondidas();
-    const totalQuestoes = questoes.length;
-    const questoesUnicas = new Set(questoesRespondidas);
-    const percentualRespondido = (questoesUnicas.size / totalQuestoes) * 100;
-
     const todasDependentes = new Set(
       Object.values(this.questoesPrincipais).flat()
     );
 
-    const questoesPrincipais = questoes.filter(
-      (q) => !todasDependentes.has(q.id)
+    const questoesPrincipaisNaoRespondidas = questoes.filter(
+      (q) => !todasDependentes.has(q.id) && !questoesRespondidas.has(q.id)
     );
+
+    const questoesPrincipaisRespondidas = questoes.filter(
+      (q) => !todasDependentes.has(q.id) && questoesRespondidas.has(q.id)
+    );
+
     const questoesSorteadas: Questao[] = [];
+    const questaesProcessadas = new Set<string>();
+
+    const contarDependentes = (questaoId: string): number => {
+      return this.questoesPrincipais[questaoId]?.length || 0;
+    };
+
+    const podeSortearComDependentes = (questao: Questao): boolean => {
+      const totalAposAdicao =
+        questoesSorteadas.length + 1 + contarDependentes(questao.id);
+      return totalAposAdicao <= quantidade;
+    };
 
     const adicionarQuestaoEDependentes = (questao: Questao) => {
+      if (questaesProcessadas.has(questao.id)) return;
+
+      if (
+        this.questoesPrincipais[questao.id] &&
+        !podeSortearComDependentes(questao)
+      ) {
+        return false;
+      }
+
+      questaesProcessadas.add(questao.id);
       questoesSorteadas.push(questao);
 
       const dependentes = this.questoesPrincipais[questao.id];
       if (dependentes) {
         for (const depId of dependentes) {
           const questaoDependente = questoes.find((q) => q.id === depId);
-          if (questaoDependente) {
+          if (questaoDependente && !questaesProcessadas.has(depId)) {
+            questaesProcessadas.add(depId);
             questoesSorteadas.push(questaoDependente);
           }
         }
       }
+      return true;
     };
 
-    if (percentualRespondido < this.percentualMinimo) {
-      const naoRespondidas = [...questoesPrincipais].filter(
-        (q) => !questoesRespondidas.includes(q.id)
+    while (
+      questoesSorteadas.length < quantidade &&
+      questoesPrincipaisNaoRespondidas.length > 0
+    ) {
+      const questoesSemDependentes = questoesPrincipaisNaoRespondidas.filter(
+        (q) => !this.questoesPrincipais[q.id]
+      );
+      const questoesComDependentes = questoesPrincipaisNaoRespondidas.filter(
+        (q) => this.questoesPrincipais[q.id]
       );
 
-      while (
-        questoesSorteadas.length < quantidade &&
-        naoRespondidas.length > 0
-      ) {
-        const idx = Math.floor(Math.random() * naoRespondidas.length);
-        const questao = naoRespondidas.splice(idx, 1)[0];
-        adicionarQuestaoEDependentes(questao);
+      const listaParaSorteio =
+        quantidade - questoesSorteadas.length <= 2
+          ? questoesSemDependentes
+          : [...questoesComDependentes, ...questoesSemDependentes];
+
+      if (listaParaSorteio.length === 0) break;
+
+      const idx = Math.floor(Math.random() * listaParaSorteio.length);
+      const questao = listaParaSorteio[idx];
+
+      const adicionada = adicionarQuestaoEDependentes(questao);
+      if (adicionada) {
+        const index = questoesPrincipaisNaoRespondidas.findIndex(
+          (q) => q.id === questao.id
+        );
+        if (index !== -1) questoesPrincipaisNaoRespondidas.splice(index, 1);
       }
-    } else {
-      const disponiveis = [...questoesPrincipais];
-      while (questoesSorteadas.length < quantidade && disponiveis.length > 0) {
-        const idx = Math.floor(Math.random() * disponiveis.length);
-        const questao = disponiveis.splice(idx, 1)[0];
-        adicionarQuestaoEDependentes(questao);
-      }
+    }
+
+    while (
+      questoesSorteadas.length < quantidade &&
+      questoesPrincipaisRespondidas.length > 0
+    ) {
+      const questoesSemDependentes = questoesPrincipaisRespondidas.filter(
+        (q) => !this.questoesPrincipais[q.id]
+      );
+
+      const idx = Math.floor(Math.random() * questoesSemDependentes.length);
+      const questao = questoesSemDependentes[idx];
+
+      questoesSorteadas.push(questao);
+      questoesPrincipaisRespondidas.splice(
+        questoesPrincipaisRespondidas.findIndex((q) => q.id === questao.id),
+        1
+      );
     }
 
     return questoesSorteadas;
@@ -274,6 +232,14 @@ export class ListaQuestoesComponent implements OnInit {
     if (!this.todasQuestoesRespondidas()) {
       return;
     }
+
+    Promise.all(
+      this.questoes.map((questao) => {
+        this.historicoService.adicionarQuestaoRespondida(questao.id);
+      })
+    ).then(() => {
+      this.historicoService.verificarQuestoesRespondidas();
+    });
 
     this.questoes.forEach((questao) => {
       this.historicoService.adicionarQuestaoRespondida(questao.id);
@@ -349,7 +315,15 @@ export class ListaQuestoesComponent implements OnInit {
   sortearNovasQuestoes() {
     this.resultado = null;
     this.alternativaSelecionada = {};
-    this.carregarQuestoes(this.filtrosAtuais.cargo, this.filtrosAtuais.nivel);
+
+    this.historicoService.verificarQuestoesRespondidas();
+
+    this.carregarQuestoes(
+      this.filtrosAtuais.cargo,
+      this.filtrosAtuais.nivel,
+      this.filtrosAtuais.banca
+    );
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
