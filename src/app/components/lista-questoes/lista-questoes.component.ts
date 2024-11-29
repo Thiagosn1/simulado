@@ -28,19 +28,19 @@ export class ListaQuestoesComponent implements OnInit {
   resultado: Resultado | null = null;
   mensagem: string | null = null;
   filtrosAtuais: { cargo?: string; nivel?: string; banca?: string } = {};
-  percentualMinimo = 80;
-  private questoesPrincipais: Record<string, string[]> = {
-    '1': ['2'],
-    '3': ['4', '5'],
-    '214': ['215'],
-    '217': ['218'],
+  private questoesPrincipais: Record<number, number[]> = {
+    1: [2],
+    3: [4, 5],
+    214: [215],
+    217: [218],
+    221: [222, 223, 224],
+    227: [228],
   };
 
   constructor(
     private questoesService: QuestoesService,
     private historicoService: HistoricoService
   ) {
-    // Monitorar mudanças no histórico
     this.historicoService
       .getHistoricoObservable()
       .subscribe((questoesRespondidas) => {
@@ -57,17 +57,35 @@ export class ListaQuestoesComponent implements OnInit {
   }
 
   carregarQuestoes(cargo?: string, nivel?: string, banca?: string) {
+    const questoesComImagensMap: Record<string, string> = {
+      '226': 'figura1.png',
+      '230': 'figura2.png',
+    };
+
     this.questoesService
       .getQuestoes(cargo, nivel, banca)
       .pipe(
         map((questoes) => {
+          const questoesComImagem = questoes.map((questao) => {
+            const imagem = questoesComImagensMap[questao.id];
+            if (imagem) {
+              return {
+                ...questao,
+                imagem,
+              };
+            }
+            return questao;
+          });
+
           const filtros = {
             banca: banca?.trim(),
             cargo: cargo?.trim(),
             nivel: nivel?.trim(),
           };
 
-          const questoesFiltradas = questoes.filter((questao) => {
+          console.log('Filtros aplicados:', filtros);
+
+          const questoesFiltradas = questoesComImagem.filter((questao) => {
             return Object.entries(filtros).every(([campo, valor]) => {
               return !valor || questao[campo as keyof typeof questao] === valor;
             });
@@ -111,103 +129,47 @@ export class ListaQuestoesComponent implements OnInit {
 
   sortearQuestoes(questoes: Questao[], quantidade: number): Questao[] {
     const questoesRespondidas = this.historicoService.getQuestoesRespondidas();
+    const questoesSorteadas: Questao[] = [];
+
+    // Converter IDs de dependentes para números
     const todasDependentes = new Set(
       Object.values(this.questoesPrincipais).flat()
     );
 
-    const questoesPrincipaisNaoRespondidas = questoes.filter(
-      (q) => !todasDependentes.has(q.id) && !questoesRespondidas.has(q.id)
+    // Filtrar questões principais (não dependentes)
+    const questoesDisponiveis = questoes.filter(
+      (q) =>
+        !questoesRespondidas.has(String(q.id)) &&
+        !todasDependentes.has(Number(q.id))
     );
 
-    const questoesPrincipaisRespondidas = questoes.filter(
-      (q) => !todasDependentes.has(q.id) && questoesRespondidas.has(q.id)
-    );
+    while (
+      questoesSorteadas.length < quantidade &&
+      questoesDisponiveis.length > 0
+    ) {
+      const index = Math.floor(Math.random() * questoesDisponiveis.length);
+      const questaoSorteada = questoesDisponiveis[index];
 
-    const questoesSorteadas: Questao[] = [];
-    const questaesProcessadas = new Set<string>();
+      // Usar ID como número para verificar dependentes
+      const dependentes =
+        this.questoesPrincipais[Number(questaoSorteada.id)] || [];
+      const totalNecessario = 1 + dependentes.length;
 
-    const contarDependentes = (questaoId: string): number => {
-      return this.questoesPrincipais[questaoId]?.length || 0;
-    };
+      if (questoesSorteadas.length + totalNecessario <= quantidade) {
+        questoesSorteadas.push(questaoSorteada);
 
-    const podeSortearComDependentes = (questao: Questao): boolean => {
-      const totalAposAdicao =
-        questoesSorteadas.length + 1 + contarDependentes(questao.id);
-      return totalAposAdicao <= quantidade;
-    };
-
-    const adicionarQuestaoEDependentes = (questao: Questao) => {
-      if (questaesProcessadas.has(questao.id)) return;
-
-      if (
-        this.questoesPrincipais[questao.id] &&
-        !podeSortearComDependentes(questao)
-      ) {
-        return false;
-      }
-
-      questaesProcessadas.add(questao.id);
-      questoesSorteadas.push(questao);
-
-      const dependentes = this.questoesPrincipais[questao.id];
-      if (dependentes) {
+        // Adicionar questões dependentes em ordem
         for (const depId of dependentes) {
-          const questaoDependente = questoes.find((q) => q.id === depId);
-          if (questaoDependente && !questaesProcessadas.has(depId)) {
-            questaesProcessadas.add(depId);
+          const questaoDependente = questoes.find(
+            (q) => Number(q.id) === depId
+          );
+          if (questaoDependente) {
             questoesSorteadas.push(questaoDependente);
           }
         }
       }
-      return true;
-    };
 
-    while (
-      questoesSorteadas.length < quantidade &&
-      questoesPrincipaisNaoRespondidas.length > 0
-    ) {
-      const questoesSemDependentes = questoesPrincipaisNaoRespondidas.filter(
-        (q) => !this.questoesPrincipais[q.id]
-      );
-      const questoesComDependentes = questoesPrincipaisNaoRespondidas.filter(
-        (q) => this.questoesPrincipais[q.id]
-      );
-
-      const listaParaSorteio =
-        quantidade - questoesSorteadas.length <= 2
-          ? questoesSemDependentes
-          : [...questoesComDependentes, ...questoesSemDependentes];
-
-      if (listaParaSorteio.length === 0) break;
-
-      const idx = Math.floor(Math.random() * listaParaSorteio.length);
-      const questao = listaParaSorteio[idx];
-
-      const adicionada = adicionarQuestaoEDependentes(questao);
-      if (adicionada) {
-        const index = questoesPrincipaisNaoRespondidas.findIndex(
-          (q) => q.id === questao.id
-        );
-        if (index !== -1) questoesPrincipaisNaoRespondidas.splice(index, 1);
-      }
-    }
-
-    while (
-      questoesSorteadas.length < quantidade &&
-      questoesPrincipaisRespondidas.length > 0
-    ) {
-      const questoesSemDependentes = questoesPrincipaisRespondidas.filter(
-        (q) => !this.questoesPrincipais[q.id]
-      );
-
-      const idx = Math.floor(Math.random() * questoesSemDependentes.length);
-      const questao = questoesSemDependentes[idx];
-
-      questoesSorteadas.push(questao);
-      questoesPrincipaisRespondidas.splice(
-        questoesPrincipaisRespondidas.findIndex((q) => q.id === questao.id),
-        1
-      );
+      questoesDisponiveis.splice(index, 1);
     }
 
     return questoesSorteadas;

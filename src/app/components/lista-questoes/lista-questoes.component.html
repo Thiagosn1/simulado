@@ -17,14 +17,32 @@
     <div *ngFor="let questao of questoes; let i = index" class="questao-card">
       <div class="questao-tags">
         <div class="tag-row-banca">
-          <span class="tag tag-banca">{{ questao.banca }}</span>
+          <span *ngIf="questao.banca" class="tag tag-banca">{{
+            questao.banca
+          }}</span>
         </div>
-        <span class="tag tag-prova">{{ questao.prova }}</span>
-        <span class="tag tag-cargo">{{ questao.cargo }}</span>
-        <span class="tag tag-nivel">{{ questao.nivel }}</span>
+        <span *ngIf="questao.prova" class="tag tag-prova">{{
+          questao.prova
+        }}</span>
+        <span *ngIf="questao.cargo" class="tag tag-cargo">{{
+          questao.cargo
+        }}</span>
+        <span *ngIf="questao.nivel" class="tag tag-nivel">{{
+          questao.nivel
+        }}</span>
       </div>
 
-      <p class="questao-enunciado" [innerHTML]="formatarEnunciado(questao.enunciado)"></p>
+      <p
+        class="questao-enunciado"
+        [innerHTML]="formatarEnunciado(questao.enunciado)"
+      ></p>
+
+      <img
+        *ngIf="questao.imagem"
+        [src]="'assets/images/' + questao.imagem"
+        alt="Imagem da questão"
+        class="imagem-questao"
+      />
 
       <div class="alternativas-lista">
         <div

@@ -7,6 +7,7 @@ export interface Questao {
   prova: string;
   banca: string;
   enunciado: string;
+  imagem?: string;
   alternativas: { id: number; texto: string }[];
   resposta_correta: number;
 }

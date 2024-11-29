@@ -184,6 +184,14 @@
   text-align: center;
 }
 
+.imagem-questao {
+  max-width: 100%;
+  margin: 1rem 0;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 @media (max-width: 480px) {
   .questao-tags {
     display: flex;

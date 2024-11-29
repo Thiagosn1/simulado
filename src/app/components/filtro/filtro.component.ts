@@ -21,6 +21,7 @@ const MAPEAMENTOS: Mapeamentos = {
     ganzaroli: 'Ganzaroli Assessoria',
     verbena: 'Instituto Verbena/UFG',
     itame: 'Itame',
+    reis: 'Reis & Reis',
   },
   cargo: {
     'assistente administrativo': 'Assistente Administrativo',
