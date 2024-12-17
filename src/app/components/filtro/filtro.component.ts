@@ -26,6 +26,7 @@ const MAPEAMENTOS: Mapeamentos = {
   cargo: {
     'assistente administrativo': 'Assistente Administrativo',
     'professor de informatica': 'Professor de Informática',
+    'tecnico em informatica': 'Técnico em Informática',
   },
   nivel: {
     medio: 'Médio',

@@ -35,6 +35,8 @@ export class ListaQuestoesComponent implements OnInit {
     217: [218],
     221: [222, 223, 224],
     227: [228],
+    272: [273, 274, 275, 276, 277, 278, 279],
+    280: [281],
   };
 
   constructor(
