@@ -20,7 +20,7 @@ const MAPEAMENTOS: Mapeamentos = {
     aroeira: 'Fundação Aroeira',
     ganzaroli: 'Ganzaroli Assessoria',
     verbena: 'Instituto Verbena/UFG',
-    itame: 'Itame',
+    itame: 'ITAME',
     reis: 'Reis & Reis',
   },
   cargo: {
