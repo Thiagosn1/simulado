@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 type FiltroValues = {
@@ -44,7 +44,7 @@ const MAPEAMENTOS: Mapeamentos = {
   templateUrl: './filtro.component.html',
   styleUrl: './filtro.component.css',
 })
-export class FiltroComponent {
+export class FiltroComponent implements OnInit {
   filtroForm: FormGroup;
   @Output() filtroAplicado = new EventEmitter<Partial<FiltroValues>>();
 
@@ -54,6 +54,31 @@ export class FiltroComponent {
       nivel: [''],
       banca: [''],
     });
+  }
+
+  ngOnInit() {
+    // Carregar filtros salvos do localStorage
+    const filtrosSalvos = localStorage.getItem('filtrosAtuais');
+    if (filtrosSalvos) {
+      const filtros = JSON.parse(filtrosSalvos);
+
+      // Converter os valores formatados de volta para as chaves do select
+      const filtrosParaForm = {
+        cargo: this.obterChavePorValor('cargo', filtros.cargo || ''),
+        nivel: this.obterChavePorValor('nivel', filtros.nivel || ''),
+        banca: this.obterChavePorValor('banca', filtros.banca || ''),
+      };
+
+      this.filtroForm.patchValue(filtrosParaForm);
+    }
+  }
+
+  private obterChavePorValor(tipo: keyof Mapeamentos, valor: string): string {
+    if (!valor) return '';
+
+    const mapeamento = MAPEAMENTOS[tipo];
+    const entrada = Object.entries(mapeamento).find(([_, v]) => v === valor);
+    return entrada ? entrada[0] : '';
   }
 
   aplicarFiltros() {

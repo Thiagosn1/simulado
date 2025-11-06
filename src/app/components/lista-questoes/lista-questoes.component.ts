@@ -57,19 +57,22 @@ export class ListaQuestoesComponent implements OnInit {
           questoesRespondidas.size,
           'questões'
         );
-        // Atualizar as estatísticas quando o histórico mudar
-        if (
-          !this.filtrosAtuais.cargo &&
-          !this.filtrosAtuais.nivel &&
-          !this.filtrosAtuais.banca
-        ) {
-          this.totalQuestoesRespondidas = questoesRespondidas.size;
-        }
       });
   }
 
   ngOnInit() {
-    this.carregarQuestoes();
+    // Carregar filtros salvos do localStorage
+    const filtrosSalvos = localStorage.getItem('filtrosAtuais');
+    if (filtrosSalvos) {
+      this.filtrosAtuais = JSON.parse(filtrosSalvos);
+      this.carregarQuestoes(
+        this.filtrosAtuais.cargo,
+        this.filtrosAtuais.nivel,
+        this.filtrosAtuais.banca
+      );
+    } else {
+      this.carregarQuestoes();
+    }
   }
 
   carregarQuestoes(cargo?: string, nivel?: string, banca?: string) {
@@ -250,6 +253,8 @@ export class ListaQuestoesComponent implements OnInit {
 
   aplicarFiltros(filtros: { cargo?: string; nivel?: string; banca?: string }) {
     this.filtrosAtuais = filtros;
+    // Salvar filtros no localStorage
+    localStorage.setItem('filtrosAtuais', JSON.stringify(filtros));
     this.carregarQuestoes(filtros.cargo, filtros.nivel, filtros.banca);
   }
 
