@@ -32,7 +32,6 @@ export class ListaQuestoesComponent implements OnInit {
   // Estatísticas
   totalQuestoesDisponiveis: number = 0;
   totalQuestoesRespondidas: number = 0;
-  questoesNaoRespondidasNoFiltro: number = 0;
 
   private questoesPrincipais: Record<number, number[]> = {
     1: [2],
@@ -66,12 +65,9 @@ export class ListaQuestoesComponent implements OnInit {
   }
 
   carregarEstatisticasGerais() {
-    // Carregar total de questões sem filtros
-    this.questoesService.getQuestoes().subscribe((questoes) => {
-      this.totalQuestoesDisponiveis = questoes.length;
-      this.totalQuestoesRespondidas =
-        this.historicoService.getQuestoesRespondidas().size;
-    });
+    // Atualizar apenas o total de questões respondidas
+    this.totalQuestoesRespondidas =
+      this.historicoService.getQuestoesRespondidas().size;
   }
 
   carregarQuestoes(cargo?: string, nivel?: string, banca?: string) {
@@ -130,9 +126,12 @@ export class ListaQuestoesComponent implements OnInit {
       .subscribe(async (questoes) => {
         if (questoes.length === 0) {
           this.questoes = [];
-          this.questoesNaoRespondidasNoFiltro = 0;
+          this.totalQuestoesDisponiveis = 0;
           return;
         }
+
+        // Atualizar o total de questões disponíveis com base no filtro atual
+        this.totalQuestoesDisponiveis = questoes.length;
 
         const questoesRespondidas =
           this.historicoService.getQuestoesRespondidas();
@@ -140,17 +139,20 @@ export class ListaQuestoesComponent implements OnInit {
           Object.values(this.questoesPrincipais).flat()
         );
 
+        // Contar quantas questões do filtro atual já foram respondidas
+        const questoesRespondidasNoFiltro = questoes.filter((q) =>
+          questoesRespondidas.has(String(q.id))
+        );
+
+        // Atualizar total de questões respondidas (do filtro atual)
+        this.totalQuestoesRespondidas = questoesRespondidasNoFiltro.length;
+
         // Contar questões disponíveis não respondidas (excluindo dependentes)
         const questoesDisponiveisNaoRespondidas = questoes.filter(
           (q) =>
             !questoesRespondidas.has(String(q.id)) &&
             !todasDependentes.has(Number(q.id))
         );
-
-        // Atualizar estatísticas
-        this.questoesNaoRespondidasNoFiltro =
-          questoesDisponiveisNaoRespondidas.length;
-        this.totalQuestoesRespondidas = questoesRespondidas.size;
 
         // Se não há questões não respondidas disponíveis, limpar histórico
         if (questoesDisponiveisNaoRespondidas.length === 0) {

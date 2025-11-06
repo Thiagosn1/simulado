@@ -19,13 +19,6 @@
       <div class="estatistica-label">Questões Respondidas</div>
       <div class="estatistica-valor">{{ totalQuestoesRespondidas }}</div>
     </div>
-    <div
-      class="estatistica-card"
-      *ngIf="filtrosAtuais.cargo || filtrosAtuais.nivel || filtrosAtuais.banca"
-    >
-      <div class="estatistica-label">Não Respondidas (Filtro)</div>
-      <div class="estatistica-valor">{{ questoesNaoRespondidasNoFiltro }}</div>
-    </div>
   </div>
 
   <div *ngIf="mensagem" class="mensagem-erro">

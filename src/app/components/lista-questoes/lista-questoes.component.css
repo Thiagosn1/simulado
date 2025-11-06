@@ -26,36 +26,51 @@
 
 .estatisticas-section {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
   margin-bottom: 2rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .estatistica-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background-color: white;
+  color: #1e293b;
   border-radius: 0.75rem;
   padding: 1.5rem;
   text-align: center;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e2e8f0;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.estatistica-card:first-child {
+  border-top: 4px solid #3b82f6;
+}
+
+.estatistica-card:nth-child(2) {
+  border-top: 4px solid #10b981;
 }
 
 .estatistica-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .estatistica-label {
   font-size: 0.875rem;
-  font-weight: 500;
-  opacity: 0.9;
+  font-weight: 600;
+  color: #64748b;
   margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .estatistica-valor {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: bold;
+  color: #1e293b;
 }
 
 .questoes-lista {
