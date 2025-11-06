@@ -112,16 +112,41 @@ export class ListaQuestoesComponent implements OnInit {
         })
       )
       .subscribe(async (questoes) => {
-        const todasRespondidas =
-          await this.historicoService.verificarTodasRespondidas(
-            questoes.length
-          );
-        if (todasRespondidas) {
-          console.log('Histórico limpo - Iniciando novo ciclo de questões');
+        if (questoes.length === 0) {
+          this.questoes = [];
+          return;
         }
 
-        this.questoes =
-          questoes.length > 0 ? this.sortearQuestoes(questoes, 10) : [];
+        const questoesRespondidas =
+          this.historicoService.getQuestoesRespondidas();
+        const todasDependentes = new Set(
+          Object.values(this.questoesPrincipais).flat()
+        );
+
+        // Contar questões disponíveis não respondidas (excluindo dependentes)
+        const questoesDisponiveisNaoRespondidas = questoes.filter(
+          (q) =>
+            !questoesRespondidas.has(String(q.id)) &&
+            !todasDependentes.has(Number(q.id))
+        );
+
+        // Se não há questões não respondidas disponíveis, limpar histórico
+        if (questoesDisponiveisNaoRespondidas.length === 0) {
+          console.log(
+            'Todas as questões disponíveis foram respondidas - Limpando histórico do filtro atual'
+          );
+          this.mensagem =
+            'Parabéns! Você respondeu todas as questões disponíveis para este filtro. O histórico foi resetado!';
+          this.historicoService.limparHistorico();
+          // Recarregar as questões após limpar
+          setTimeout(() => {
+            this.mensagem = null;
+            this.carregarQuestoes(cargo, nivel, banca);
+          }, 3000);
+          return;
+        }
+
+        this.questoes = this.sortearQuestoes(questoes, 10);
       });
   }
 
@@ -279,8 +304,7 @@ export class ListaQuestoesComponent implements OnInit {
   sortearNovasQuestoes() {
     this.resultado = null;
     this.alternativaSelecionada = {};
-
-    this.historicoService.verificarQuestoesRespondidas();
+    this.mensagem = null;
 
     this.carregarQuestoes(
       this.filtrosAtuais.cargo,
@@ -289,5 +313,29 @@ export class ListaQuestoesComponent implements OnInit {
     );
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  resetarHistoricoCompleto() {
+    if (
+      confirm(
+        'Tem certeza que deseja resetar todo o histórico de questões respondidas?'
+      )
+    ) {
+      this.historicoService.limparHistorico();
+      this.resultado = null;
+      this.alternativaSelecionada = {};
+      this.mensagem = 'Histórico resetado com sucesso!';
+
+      setTimeout(() => {
+        this.mensagem = null;
+        this.carregarQuestoes(
+          this.filtrosAtuais.cargo,
+          this.filtrosAtuais.nivel,
+          this.filtrosAtuais.banca
+        );
+      }, 2000);
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 }

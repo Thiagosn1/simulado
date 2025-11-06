@@ -113,10 +113,12 @@
   gap: 1rem;
   justify-content: center;
   margin-top: 1rem;
+  flex-wrap: wrap;
 }
 
 .corrigir-simulado-btn,
-.sortear-questoes-btn {
+.sortear-questoes-btn,
+.resetar-historico-btn {
   padding: 0.75rem 1.5rem;
   background-color: #1e40af;
   color: white;
@@ -132,6 +134,14 @@
 
 .sortear-questoes-btn:hover {
   background-color: #065f46;
+}
+
+.resetar-historico-btn {
+  background-color: #dc2626;
+}
+
+.resetar-historico-btn:hover {
+  background-color: #b91c1c;
 }
 
 .mensagem-erro {

@@ -60,26 +60,6 @@
           {{ alternativa.texto }}
         </div>
       </div>
-
-      <div *ngIf="resultado" class="detalhes">
-        <p>
-          Resposta correta:
-          {{
-            obterTextoAlternativa(
-              questao,
-              resultado.detalhes[i].respostaCorreta
-            )
-          }}
-          <br />
-          Sua resposta:
-          {{
-            obterTextoAlternativa(
-              questao,
-              resultado.detalhes[i].respostaSelecionada
-            )
-          }}
-        </p>
-      </div>
     </div>
   </div>
 
@@ -94,6 +74,10 @@
 
     <button class="sortear-questoes-btn" (click)="sortearNovasQuestoes()">
       Sortear Novas Questões
+    </button>
+
+    <button class="resetar-historico-btn" (click)="resetarHistoricoCompleto()">
+      Resetar Histórico
     </button>
   </div>
 </div>
