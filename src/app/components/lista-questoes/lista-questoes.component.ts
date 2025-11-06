@@ -48,6 +48,7 @@ export class ListaQuestoesComponent implements OnInit {
     private questoesService: QuestoesService,
     private historicoService: HistoricoService
   ) {
+    // Observar mudanças no histórico e atualizar estatísticas
     this.historicoService
       .getHistoricoObservable()
       .subscribe((questoesRespondidas) => {
@@ -56,18 +57,19 @@ export class ListaQuestoesComponent implements OnInit {
           questoesRespondidas.size,
           'questões'
         );
+        // Atualizar as estatísticas quando o histórico mudar
+        if (
+          !this.filtrosAtuais.cargo &&
+          !this.filtrosAtuais.nivel &&
+          !this.filtrosAtuais.banca
+        ) {
+          this.totalQuestoesRespondidas = questoesRespondidas.size;
+        }
       });
   }
 
   ngOnInit() {
-    this.carregarEstatisticasGerais();
     this.carregarQuestoes();
-  }
-
-  carregarEstatisticasGerais() {
-    // Atualizar apenas o total de questões respondidas
-    this.totalQuestoesRespondidas =
-      this.historicoService.getQuestoesRespondidas().size;
   }
 
   carregarQuestoes(cargo?: string, nivel?: string, banca?: string) {
@@ -187,12 +189,21 @@ export class ListaQuestoesComponent implements OnInit {
       Object.values(this.questoesPrincipais).flat()
     );
 
-    // Filtrar questões principais (não dependentes)
+    // Filtrar questões principais não respondidas (não dependentes)
     const questoesDisponiveis = questoes.filter(
       (q) =>
         !questoesRespondidas.has(String(q.id)) &&
         !todasDependentes.has(Number(q.id))
     );
+
+    console.log(
+      `Questões disponíveis para sortear: ${questoesDisponiveis.length}`
+    );
+
+    // Se não houver questões disponíveis, retornar vazio
+    if (questoesDisponiveis.length === 0) {
+      return [];
+    }
 
     while (
       questoesSorteadas.length < quantidade &&
@@ -206,6 +217,7 @@ export class ListaQuestoesComponent implements OnInit {
         this.questoesPrincipais[Number(questaoSorteada.id)] || [];
       const totalNecessario = 1 + dependentes.length;
 
+      // Se ainda couber a questão principal + dependentes, adicionar
       if (questoesSorteadas.length + totalNecessario <= quantidade) {
         questoesSorteadas.push(questaoSorteada);
 
@@ -218,11 +230,21 @@ export class ListaQuestoesComponent implements OnInit {
             questoesSorteadas.push(questaoDependente);
           }
         }
+      } else {
+        // Se não couber com dependentes, mas ainda há espaço e é a última questão disponível
+        // Adicionar só a questão principal sem os dependentes
+        if (
+          questoesSorteadas.length < quantidade &&
+          questoesDisponiveis.length === 1
+        ) {
+          questoesSorteadas.push(questaoSorteada);
+        }
       }
 
       questoesDisponiveis.splice(index, 1);
     }
 
+    console.log(`Questões sorteadas: ${questoesSorteadas.length}`);
     return questoesSorteadas;
   }
 
@@ -354,9 +376,8 @@ export class ListaQuestoesComponent implements OnInit {
       this.alternativaSelecionada = {};
       this.mensagem = 'Histórico resetado com sucesso!';
 
-      // Atualizar estatísticas
+      // Atualizar estatísticas - será atualizado automaticamente pelo observable
       this.totalQuestoesRespondidas = 0;
-      this.carregarEstatisticasGerais();
 
       setTimeout(() => {
         this.mensagem = null;
