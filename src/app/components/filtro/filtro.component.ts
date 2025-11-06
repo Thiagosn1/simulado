@@ -22,13 +22,16 @@ const MAPEAMENTOS: Mapeamentos = {
     verbena: 'Instituto Verbena/UFG',
     itame: 'ITAME',
     reis: 'Reis & Reis',
+    'nao informada': 'Não informada',
   },
   cargo: {
     'assistente administrativo': 'Assistente Administrativo',
     'professor de informatica': 'Professor de Informática',
     'tecnico em informatica': 'Técnico em Informática',
+    'secretario auxiliar': 'Secretário Auxiliar',
   },
   nivel: {
+    fundamental: 'Fundamental',
     medio: 'Médio',
     superior: 'Superior',
   },
