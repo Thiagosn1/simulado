@@ -61,15 +61,6 @@ export class ListaQuestoesComponent implements OnInit {
   }
 
   ngOnInit() {
-    // TEMPORÁRIO: Limpar histórico antigo com IDs incorretos
-    // Remova este código após limpar uma vez
-    const historicoLimpo = localStorage.getItem('historicoLimpo_v2');
-    if (!historicoLimpo) {
-      console.log('Limpando histórico antigo...');
-      this.historicoService.limparHistorico();
-      localStorage.setItem('historicoLimpo_v2', 'true');
-    }
-
     // Carregar filtros salvos do localStorage
     const filtrosSalvos = localStorage.getItem('filtrosAtuais');
     if (filtrosSalvos) {
@@ -308,14 +299,7 @@ export class ListaQuestoesComponent implements OnInit {
       return;
     }
 
-    Promise.all(
-      this.questoes.map((questao) => {
-        this.historicoService.adicionarQuestaoRespondida(questao.id);
-      })
-    ).then(() => {
-      this.historicoService.verificarQuestoesRespondidas();
-    });
-
+    // Adicionar questões ao histórico
     this.questoes.forEach((questao) => {
       this.historicoService.adicionarQuestaoRespondida(questao.id);
     });
@@ -343,9 +327,46 @@ export class ListaQuestoesComponent implements OnInit {
       detalhes: detalhes,
     };
 
-    // Atualizar estatísticas após corrigir
-    this.totalQuestoesRespondidas =
-      this.historicoService.getQuestoesRespondidas().size;
+    // Atualizar estatísticas após corrigir - usar setTimeout para aguardar o IndexedDB
+    setTimeout(() => {
+      const questoesRespondidas =
+        this.historicoService.getQuestoesRespondidas();
+
+      // Se há filtros ativos, contar apenas as respondidas no filtro
+      if (
+        this.filtrosAtuais.cargo ||
+        this.filtrosAtuais.nivel ||
+        this.filtrosAtuais.banca
+      ) {
+        // Recarregar questões para atualizar o contador
+        this.questoesService
+          .getQuestoes(
+            this.filtrosAtuais.cargo,
+            this.filtrosAtuais.nivel,
+            this.filtrosAtuais.banca
+          )
+          .subscribe((questoes) => {
+            const todasQuestoesFiltradas = questoes.filter((q) => {
+              const filtros = {
+                banca: this.filtrosAtuais.banca?.trim(),
+                cargo: this.filtrosAtuais.cargo?.trim(),
+                nivel: this.filtrosAtuais.nivel?.trim(),
+              };
+              return Object.entries(filtros).every(([campo, valor]) => {
+                return !valor || q[campo as keyof typeof q] === valor;
+              });
+            });
+
+            const questoesRespondidasNoFiltro = todasQuestoesFiltradas.filter(
+              (q) => questoesRespondidas.has(String(q.id))
+            );
+            this.totalQuestoesRespondidas = questoesRespondidasNoFiltro.length;
+          });
+      } else {
+        // Sem filtros, usar total geral
+        this.totalQuestoesRespondidas = questoesRespondidas.size;
+      }
+    }, 100);
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
