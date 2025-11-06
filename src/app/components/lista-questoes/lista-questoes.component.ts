@@ -53,11 +53,40 @@ export class ListaQuestoesComponent implements OnInit {
       .getHistoricoObservable()
       .subscribe((questoesRespondidas) => {
         console.log(
-          'Histórico atualizado:',
+          'Histórico atualizado via Observable:',
           questoesRespondidas.size,
           'questões'
         );
+
+        // Atualizar estatísticas sempre que o histórico mudar
+        this.atualizarEstatisticas();
       });
+  }
+
+  private atualizarEstatisticas() {
+    // Se não há questões carregadas ainda, não fazer nada
+    if (this.questoes.length === 0 && this.totalQuestoesDisponiveis === 0) {
+      return;
+    }
+
+    // Se há filtros ativos, precisamos recarregar para contar corretamente
+    if (
+      this.filtrosAtuais.cargo ||
+      this.filtrosAtuais.nivel ||
+      this.filtrosAtuais.banca
+    ) {
+      // Recarregar questões com os filtros atuais para atualizar contador
+      this.carregarQuestoes(
+        this.filtrosAtuais.cargo,
+        this.filtrosAtuais.nivel,
+        this.filtrosAtuais.banca
+      );
+    } else {
+      // Sem filtros, apenas atualizar o total geral
+      const questoesRespondidas =
+        this.historicoService.getQuestoesRespondidas();
+      this.totalQuestoesRespondidas = questoesRespondidas.size;
+    }
   }
 
   ngOnInit() {
@@ -140,6 +169,16 @@ export class ListaQuestoesComponent implements OnInit {
 
         const questoesRespondidas =
           this.historicoService.getQuestoesRespondidas();
+
+        console.log(
+          'Total de questões respondidas no histórico:',
+          questoesRespondidas.size
+        );
+        console.log(
+          'IDs das questões respondidas:',
+          Array.from(questoesRespondidas)
+        );
+
         const todasDependentes = new Set(
           Object.values(this.questoesPrincipais).flat()
         );
@@ -147,6 +186,15 @@ export class ListaQuestoesComponent implements OnInit {
         // Contar quantas questões do filtro atual já foram respondidas
         const questoesRespondidasNoFiltro = questoes.filter((q) =>
           questoesRespondidas.has(String(q.id))
+        );
+
+        console.log(
+          'Questões respondidas no filtro atual:',
+          questoesRespondidasNoFiltro.length
+        );
+        console.log(
+          'IDs das questões no filtro:',
+          questoes.map((q) => q.id)
         );
 
         // Atualizar total de questões respondidas (do filtro atual)
