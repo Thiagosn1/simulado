@@ -48,7 +48,7 @@ export class ListaQuestoesComponent implements OnInit {
     private questoesService: QuestoesService,
     private historicoService: HistoricoService
   ) {
-    // Observar mudanças no histórico e atualizar estatísticas
+    // Observar mudanças no histórico (mas não recarregar para evitar loop)
     this.historicoService
       .getHistoricoObservable()
       .subscribe((questoesRespondidas) => {
@@ -57,36 +57,7 @@ export class ListaQuestoesComponent implements OnInit {
           questoesRespondidas.size,
           'questões'
         );
-
-        // Atualizar estatísticas sempre que o histórico mudar
-        this.atualizarEstatisticas();
       });
-  }
-
-  private atualizarEstatisticas() {
-    // Se não há questões carregadas ainda, não fazer nada
-    if (this.questoes.length === 0 && this.totalQuestoesDisponiveis === 0) {
-      return;
-    }
-
-    // Se há filtros ativos, precisamos recarregar para contar corretamente
-    if (
-      this.filtrosAtuais.cargo ||
-      this.filtrosAtuais.nivel ||
-      this.filtrosAtuais.banca
-    ) {
-      // Recarregar questões com os filtros atuais para atualizar contador
-      this.carregarQuestoes(
-        this.filtrosAtuais.cargo,
-        this.filtrosAtuais.nivel,
-        this.filtrosAtuais.banca
-      );
-    } else {
-      // Sem filtros, apenas atualizar o total geral
-      const questoesRespondidas =
-        this.historicoService.getQuestoesRespondidas();
-      this.totalQuestoesRespondidas = questoesRespondidas.size;
-    }
   }
 
   ngOnInit() {
@@ -175,8 +146,8 @@ export class ListaQuestoesComponent implements OnInit {
           questoesRespondidas.size
         );
         console.log(
-          'IDs das questões respondidas:',
-          Array.from(questoesRespondidas)
+          'IDs das questões respondidas (tipo):',
+          Array.from(questoesRespondidas).map((id) => ({ id, tipo: typeof id }))
         );
 
         const todasDependentes = new Set(
@@ -184,17 +155,24 @@ export class ListaQuestoesComponent implements OnInit {
         );
 
         // Contar quantas questões do filtro atual já foram respondidas
-        const questoesRespondidasNoFiltro = questoes.filter((q) =>
-          questoesRespondidas.has(String(q.id))
-        );
+        const questoesRespondidasNoFiltro = questoes.filter((q) => {
+          const questaoIdString = String(q.id);
+          const estaRespondida = questoesRespondidas.has(questaoIdString);
+          console.log(
+            `Questão ${
+              q.id
+            } (tipo: ${typeof q.id}) - String: ${questaoIdString} - Está respondida: ${estaRespondida}`
+          );
+          return estaRespondida;
+        });
 
         console.log(
           'Questões respondidas no filtro atual:',
           questoesRespondidasNoFiltro.length
         );
         console.log(
-          'IDs das questões no filtro:',
-          questoes.map((q) => q.id)
+          'IDs das questões no filtro (tipo):',
+          questoes.map((q) => ({ id: q.id, tipo: typeof q.id }))
         );
 
         // Atualizar total de questões respondidas (do filtro atual)
