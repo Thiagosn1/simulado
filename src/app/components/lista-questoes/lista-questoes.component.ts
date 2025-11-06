@@ -61,6 +61,15 @@ export class ListaQuestoesComponent implements OnInit {
   }
 
   ngOnInit() {
+    // TEMPORÁRIO: Limpar histórico antigo com IDs incorretos
+    // Remova este código após limpar uma vez
+    const historicoLimpo = localStorage.getItem('historicoLimpo_v2');
+    if (!historicoLimpo) {
+      console.log('Limpando histórico antigo...');
+      this.historicoService.limparHistorico();
+      localStorage.setItem('historicoLimpo_v2', 'true');
+    }
+
     // Carregar filtros salvos do localStorage
     const filtrosSalvos = localStorage.getItem('filtrosAtuais');
     if (filtrosSalvos) {

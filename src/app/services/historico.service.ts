@@ -64,8 +64,10 @@ export class HistoricoService {
     const request = store.getAll();
 
     request.onsuccess = () => {
-      const questoes = new Set(request.result.map((item) => item.id));
+      // Garantir que todos os IDs sejam strings
+      const questoes = new Set(request.result.map((item) => String(item.id)));
       this.historico$.next(questoes);
+      console.log('Questões carregadas do IndexedDB:', Array.from(questoes));
     };
 
     request.onerror = () => {
@@ -77,8 +79,11 @@ export class HistoricoService {
     return new Set(this.historico$.value);
   }
 
-  adicionarQuestaoRespondida(questaoId: string): void {
-    if (!this.db || !questaoId) {
+  adicionarQuestaoRespondida(questaoId: string | number): void {
+    // Garantir que sempre seja string
+    const idString = String(questaoId);
+
+    if (!this.db || !idString) {
       console.warn('Banco não inicializado ou ID inválido');
       return;
     }
@@ -87,7 +92,7 @@ export class HistoricoService {
     const store = transaction.objectStore(this.STORE_NAME);
 
     const questao: QuestaoRespondida = {
-      id: questaoId,
+      id: idString,
       timestamp: Date.now(),
     };
 
@@ -95,8 +100,9 @@ export class HistoricoService {
 
     request.onsuccess = () => {
       const questoes = new Set(this.historico$.value);
-      questoes.add(questaoId);
+      questoes.add(idString);
       this.historico$.next(questoes);
+      console.log(`Questão ${idString} adicionada ao histórico`);
     };
 
     request.onerror = () => {
