@@ -1,5 +1,32 @@
 <div class="container">
-  <app-filtro (filtroAplicado)="aplicarFiltros($event)"></app-filtro>
+  <!-- Header com Título -->
+  <div class="header-section">
+    <h1 class="page-title">Simulado de Questões</h1>
+  </div>
+
+  <!-- Área de Filtros -->
+  <div class="filtros-section">
+    <app-filtro (filtroAplicado)="aplicarFiltros($event)"></app-filtro>
+  </div>
+
+  <!-- Estatísticas -->
+  <div class="estatisticas-section">
+    <div class="estatistica-card">
+      <div class="estatistica-label">Total de Questões</div>
+      <div class="estatistica-valor">{{ totalQuestoesDisponiveis }}</div>
+    </div>
+    <div class="estatistica-card">
+      <div class="estatistica-label">Questões Respondidas</div>
+      <div class="estatistica-valor">{{ totalQuestoesRespondidas }}</div>
+    </div>
+    <div
+      class="estatistica-card"
+      *ngIf="filtrosAtuais.cargo || filtrosAtuais.nivel || filtrosAtuais.banca"
+    >
+      <div class="estatistica-label">Não Respondidas (Filtro)</div>
+      <div class="estatistica-valor">{{ questoesNaoRespondidasNoFiltro }}</div>
+    </div>
+  </div>
 
   <div *ngIf="mensagem" class="mensagem-erro">
     {{ mensagem }}

@@ -28,6 +28,12 @@ export class ListaQuestoesComponent implements OnInit {
   resultado: Resultado | null = null;
   mensagem: string | null = null;
   filtrosAtuais: { cargo?: string; nivel?: string; banca?: string } = {};
+
+  // Estatísticas
+  totalQuestoesDisponiveis: number = 0;
+  totalQuestoesRespondidas: number = 0;
+  questoesNaoRespondidasNoFiltro: number = 0;
+
   private questoesPrincipais: Record<number, number[]> = {
     1: [2],
     3: [4, 5],
@@ -55,7 +61,17 @@ export class ListaQuestoesComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.carregarEstatisticasGerais();
     this.carregarQuestoes();
+  }
+
+  carregarEstatisticasGerais() {
+    // Carregar total de questões sem filtros
+    this.questoesService.getQuestoes().subscribe((questoes) => {
+      this.totalQuestoesDisponiveis = questoes.length;
+      this.totalQuestoesRespondidas =
+        this.historicoService.getQuestoesRespondidas().size;
+    });
   }
 
   carregarQuestoes(cargo?: string, nivel?: string, banca?: string) {
@@ -114,6 +130,7 @@ export class ListaQuestoesComponent implements OnInit {
       .subscribe(async (questoes) => {
         if (questoes.length === 0) {
           this.questoes = [];
+          this.questoesNaoRespondidasNoFiltro = 0;
           return;
         }
 
@@ -129,6 +146,11 @@ export class ListaQuestoesComponent implements OnInit {
             !questoesRespondidas.has(String(q.id)) &&
             !todasDependentes.has(Number(q.id))
         );
+
+        // Atualizar estatísticas
+        this.questoesNaoRespondidasNoFiltro =
+          questoesDisponiveisNaoRespondidas.length;
+        this.totalQuestoesRespondidas = questoesRespondidas.size;
 
         // Se não há questões não respondidas disponíveis, limpar histórico
         if (questoesDisponiveisNaoRespondidas.length === 0) {
@@ -257,6 +279,10 @@ export class ListaQuestoesComponent implements OnInit {
       detalhes: detalhes,
     };
 
+    // Atualizar estatísticas após corrigir
+    this.totalQuestoesRespondidas =
+      this.historicoService.getQuestoesRespondidas().size;
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -325,6 +351,10 @@ export class ListaQuestoesComponent implements OnInit {
       this.resultado = null;
       this.alternativaSelecionada = {};
       this.mensagem = 'Histórico resetado com sucesso!';
+
+      // Atualizar estatísticas
+      this.totalQuestoesRespondidas = 0;
+      this.carregarEstatisticasGerais();
 
       setTimeout(() => {
         this.mensagem = null;
