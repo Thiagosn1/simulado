@@ -216,14 +216,21 @@ export class ListaQuestoesComponent implements OnInit {
       // Usar ID como número para verificar dependentes
       const dependentes =
         this.questoesPrincipais[Number(questaoSorteada.id)] || [];
-      const totalNecessario = 1 + dependentes.length;
 
-      // Se ainda couber a questão principal + dependentes, adicionar
+      // Filtrar apenas dependentes que NÃO foram respondidas
+      const dependentesDisponiveis = dependentes.filter((depId) => {
+        const questaoDep = questoes.find((q) => Number(q.id) === depId);
+        return questaoDep && !questoesRespondidas.has(String(questaoDep.id));
+      });
+
+      const totalNecessario = 1 + dependentesDisponiveis.length;
+
+      // Se ainda couber a questão principal + dependentes disponíveis, adicionar
       if (questoesSorteadas.length + totalNecessario <= quantidade) {
         questoesSorteadas.push(questaoSorteada);
 
-        // Adicionar questões dependentes em ordem
-        for (const depId of dependentes) {
+        // Adicionar apenas as questões dependentes disponíveis (não respondidas)
+        for (const depId of dependentesDisponiveis) {
           const questaoDependente = questoes.find(
             (q) => Number(q.id) === depId
           );
@@ -231,18 +238,17 @@ export class ListaQuestoesComponent implements OnInit {
             questoesSorteadas.push(questaoDependente);
           }
         }
+        // Remove da lista de disponíveis
+        questoesDisponiveis.splice(index, 1);
       } else {
-        // Se não couber com dependentes, mas ainda há espaço e é a última questão disponível
-        // Adicionar só a questão principal sem os dependentes
-        if (
-          questoesSorteadas.length < quantidade &&
-          questoesDisponiveis.length === 1
-        ) {
-          questoesSorteadas.push(questaoSorteada);
+        // Se não couber com as dependentes, remover da lista e tentar outra
+        questoesDisponiveis.splice(index, 1);
+
+        // Se não há mais questões disponíveis, parar o loop
+        if (questoesDisponiveis.length === 0) {
+          break;
         }
       }
-
-      questoesDisponiveis.splice(index, 1);
     }
 
     return questoesSorteadas;
