@@ -186,7 +186,9 @@ export class ListaQuestoesComponent implements OnInit {
   }
 
   sortearQuestoes(questoes: Questao[], quantidade: number): Questao[] {
+    console.log('=== INICIANDO SORTEIO ===');
     const questoesRespondidas = this.historicoService.getQuestoesRespondidas();
+    console.log('Questões respondidas:', Array.from(questoesRespondidas));
     const questoesSorteadas: Questao[] = [];
 
     // Converter IDs de dependentes para números
@@ -274,6 +276,12 @@ export class ListaQuestoesComponent implements OnInit {
       }
     }
 
+    console.log('=== FIM DO SORTEIO ===');
+    console.log('Total sorteadas:', questoesSorteadas.length);
+    console.log(
+      'IDs sorteados:',
+      questoesSorteadas.map((q) => q.id)
+    );
     return questoesSorteadas;
   }
 
