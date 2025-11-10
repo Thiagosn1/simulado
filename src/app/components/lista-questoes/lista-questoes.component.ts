@@ -186,9 +186,7 @@ export class ListaQuestoesComponent implements OnInit {
   }
 
   sortearQuestoes(questoes: Questao[], quantidade: number): Questao[] {
-    console.log('=== INICIANDO SORTEIO ===');
     const questoesRespondidas = this.historicoService.getQuestoesRespondidas();
-    console.log('Questões respondidas:', Array.from(questoesRespondidas));
     const questoesSorteadas: Questao[] = [];
 
     // Converter IDs de dependentes para números
@@ -219,13 +217,6 @@ export class ListaQuestoesComponent implements OnInit {
       const dependentes =
         this.questoesPrincipais[Number(questaoSorteada.id)] || [];
 
-      // Debug: verificar se está pegando as dependentes corretas
-      if (Number(questaoSorteada.id) === 272) {
-        console.log('Questão 272 sorteada!');
-        console.log('Dependentes encontradas:', dependentes);
-        console.log('Total de dependentes:', dependentes.length);
-      }
-
       // Verificar se TODAS as dependentes NÃO foram respondidas
       const todasDependentesDisponiveis = dependentes.every((depId) => {
         const questaoDep = questoes.find((q) => Number(q.id) === depId);
@@ -244,9 +235,11 @@ export class ListaQuestoesComponent implements OnInit {
       if (questoesSorteadas.length + totalNecessario <= quantidade) {
         questoesSorteadas.push(questaoSorteada);
 
-        // Debug: verificar adição das dependentes
+        // Log para debug
         if (Number(questaoSorteada.id) === 272) {
-          console.log('Adicionando 272 e suas dependentes...');
+          console.log('=== ADICIONANDO 272 ===');
+          console.log('Dependentes esperadas:', dependentes);
+          console.log('Total de questões no array completo:', questoes.length);
         }
 
         // Adicionar TODAS as questões dependentes
@@ -257,11 +250,24 @@ export class ListaQuestoesComponent implements OnInit {
           if (questaoDependente) {
             questoesSorteadas.push(questaoDependente);
             if (Number(questaoSorteada.id) === 272) {
-              console.log('Dependente adicionada:', questaoDependente.id);
+              console.log('✓ Dependente adicionada:', questaoDependente.id);
             }
           } else {
-            console.error('Dependente NÃO encontrada:', depId);
+            if (dependentes.includes(depId)) {
+              console.error(
+                '✗ Dependente NÃO ENCONTRADA no array de questões:',
+                depId
+              );
+            }
           }
+        }
+
+        if (Number(questaoSorteada.id) === 272) {
+          console.log('Total sorteado até agora:', questoesSorteadas.length);
+          console.log(
+            'IDs sorteados:',
+            questoesSorteadas.map((q) => q.id)
+          );
         }
         // Remove da lista de disponíveis
         questoesDisponiveis.splice(index, 1);
@@ -276,12 +282,6 @@ export class ListaQuestoesComponent implements OnInit {
       }
     }
 
-    console.log('=== FIM DO SORTEIO ===');
-    console.log('Total sorteadas:', questoesSorteadas.length);
-    console.log(
-      'IDs sorteados:',
-      questoesSorteadas.map((q) => q.id)
-    );
     return questoesSorteadas;
   }
 
