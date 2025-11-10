@@ -217,6 +217,13 @@ export class ListaQuestoesComponent implements OnInit {
       const dependentes =
         this.questoesPrincipais[Number(questaoSorteada.id)] || [];
 
+      // Debug: verificar se está pegando as dependentes corretas
+      if (Number(questaoSorteada.id) === 272) {
+        console.log('Questão 272 sorteada!');
+        console.log('Dependentes encontradas:', dependentes);
+        console.log('Total de dependentes:', dependentes.length);
+      }
+
       // Verificar se TODAS as dependentes NÃO foram respondidas
       const todasDependentesDisponiveis = dependentes.every((depId) => {
         const questaoDep = questoes.find((q) => Number(q.id) === depId);
@@ -235,6 +242,11 @@ export class ListaQuestoesComponent implements OnInit {
       if (questoesSorteadas.length + totalNecessario <= quantidade) {
         questoesSorteadas.push(questaoSorteada);
 
+        // Debug: verificar adição das dependentes
+        if (Number(questaoSorteada.id) === 272) {
+          console.log('Adicionando 272 e suas dependentes...');
+        }
+
         // Adicionar TODAS as questões dependentes
         for (const depId of dependentes) {
           const questaoDependente = questoes.find(
@@ -242,6 +254,11 @@ export class ListaQuestoesComponent implements OnInit {
           );
           if (questaoDependente) {
             questoesSorteadas.push(questaoDependente);
+            if (Number(questaoSorteada.id) === 272) {
+              console.log('Dependente adicionada:', questaoDependente.id);
+            }
+          } else {
+            console.error('Dependente NÃO encontrada:', depId);
           }
         }
         // Remove da lista de disponíveis
