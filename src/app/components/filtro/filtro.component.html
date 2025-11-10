@@ -42,5 +42,15 @@
     </select>
   </div>
 
-  <button type="submit">Aplicar Filtros</button>
+  <div class="filtro-buttons">
+    <button type="submit">Aplicar Filtros</button>
+    <button
+      *ngIf="temFiltrosAtivos"
+      type="button"
+      (click)="resetarFiltros()"
+      class="btn-resetar"
+    >
+      Resetar Filtros
+    </button>
+  </div>
 </form>

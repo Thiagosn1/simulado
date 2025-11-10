@@ -32,6 +32,12 @@
   }
 }
 
+.filtro-buttons {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
 button {
   padding: 0.5rem 1.5rem;
   background-color: #3b82f6;
@@ -44,6 +50,14 @@ button {
 
   &:hover {
     background-color: #2563eb;
+  }
+}
+
+.btn-resetar {
+  background-color: #6b7280;
+
+  &:hover {
+    background-color: #4b5563;
   }
 }
 
@@ -60,6 +74,11 @@ button {
     select {
       width: 100%;
     }
+  }
+
+  .filtro-buttons {
+    width: 100%;
+    flex-direction: column;
   }
 
   button {

@@ -65,6 +65,9 @@ export class FiltroComponent implements OnInit {
   // Todas as questões para filtrar
   private todasQuestoes: Questao[] = [];
 
+  // Flag para mostrar/ocultar botão de resetar
+  temFiltrosAtivos = false;
+
   constructor(
     private fb: FormBuilder,
     private questoesService: QuestoesService,
@@ -98,6 +101,7 @@ export class FiltroComponent implements OnInit {
 
           this.filtroForm.patchValue(filtrosParaForm);
           this.atualizarOpcoesDisponiveis();
+          this.verificarFiltrosAtivos();
         }
       }
     });
@@ -105,6 +109,7 @@ export class FiltroComponent implements OnInit {
     // Observar mudanças nos filtros para atualizar opções disponíveis
     this.filtroForm.valueChanges.subscribe(() => {
       this.atualizarOpcoesDisponiveis();
+      this.verificarFiltrosAtivos();
     });
   }
 
@@ -128,6 +133,28 @@ export class FiltroComponent implements OnInit {
     );
 
     this.filtroAplicado.emit(filtrosFormatados);
+  }
+
+  resetarFiltros() {
+    // Resetar o formulário
+    this.filtroForm.reset({
+      cargo: '',
+      nivel: '',
+      banca: '',
+    });
+
+    // Limpar localStorage (apenas no browser)
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem('filtrosAtuais');
+    }
+
+    // Aplicar filtros vazios (mostra todas as questões)
+    this.aplicarFiltros();
+  }
+
+  private verificarFiltrosAtivos() {
+    const valores = this.filtroForm.value as FiltroValues;
+    this.temFiltrosAtivos = !!(valores.banca || valores.cargo || valores.nivel);
   }
 
   private formatarValor(tipo: keyof Mapeamentos, valor: string): string {
