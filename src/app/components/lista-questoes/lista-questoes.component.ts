@@ -217,20 +217,26 @@ export class ListaQuestoesComponent implements OnInit {
       const dependentes =
         this.questoesPrincipais[Number(questaoSorteada.id)] || [];
 
-      // Filtrar apenas dependentes que NÃO foram respondidas
-      const dependentesDisponiveis = dependentes.filter((depId) => {
+      // Verificar se TODAS as dependentes NÃO foram respondidas
+      const todasDependentesDisponiveis = dependentes.every((depId) => {
         const questaoDep = questoes.find((q) => Number(q.id) === depId);
         return questaoDep && !questoesRespondidas.has(String(questaoDep.id));
       });
 
-      const totalNecessario = 1 + dependentesDisponiveis.length;
+      // Se alguma dependente foi respondida, pular esta questão completamente
+      if (dependentes.length > 0 && !todasDependentesDisponiveis) {
+        questoesDisponiveis.splice(index, 1);
+        continue;
+      }
 
-      // Se ainda couber a questão principal + dependentes disponíveis, adicionar
+      const totalNecessario = 1 + dependentes.length;
+
+      // Se ainda couber a questão principal + TODAS as dependentes, adicionar
       if (questoesSorteadas.length + totalNecessario <= quantidade) {
         questoesSorteadas.push(questaoSorteada);
 
-        // Adicionar apenas as questões dependentes disponíveis (não respondidas)
-        for (const depId of dependentesDisponiveis) {
+        // Adicionar TODAS as questões dependentes
+        for (const depId of dependentes) {
           const questaoDependente = questoes.find(
             (q) => Number(q.id) === depId
           );
