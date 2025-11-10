@@ -173,46 +173,40 @@ export class FiltroComponent implements OnInit {
 
     // Para cada tipo de filtro, considerar os outros filtros selecionados
     this.todasQuestoes.forEach((q) => {
-      // Adicionar BANCA se: não tem banca selecionada E atende os outros filtros (cargo/nível)
-      if (!valores.banca) {
-        const atendeCargoFiltro =
-          !valores.cargo ||
-          q.cargo === this.formatarValor('cargo', valores.cargo);
-        const atendeNivelFiltro =
-          !valores.nivel ||
-          q.nivel === this.formatarValor('nivel', valores.nivel);
+      // Adicionar BANCA se atende os outros filtros (cargo/nível)
+      const atendeCargoFiltro =
+        !valores.cargo ||
+        q.cargo === this.formatarValor('cargo', valores.cargo);
+      const atendeNivelFiltro =
+        !valores.nivel ||
+        q.nivel === this.formatarValor('nivel', valores.nivel);
 
-        if (atendeCargoFiltro && atendeNivelFiltro && q.banca) {
-          bancasSet.add(q.banca);
-        }
+      if (atendeCargoFiltro && atendeNivelFiltro && q.banca) {
+        bancasSet.add(q.banca);
       }
 
-      // Adicionar CARGO se: não tem cargo selecionado E atende os outros filtros (banca/nível)
-      if (!valores.cargo) {
-        const atendeBancaFiltro =
-          !valores.banca ||
-          q.banca === this.formatarValor('banca', valores.banca);
-        const atendeNivelFiltro =
-          !valores.nivel ||
-          q.nivel === this.formatarValor('nivel', valores.nivel);
+      // Adicionar CARGO se atende os outros filtros (banca/nível)
+      const atendeBancaFiltro =
+        !valores.banca ||
+        q.banca === this.formatarValor('banca', valores.banca);
+      const atendeNivelFiltro2 =
+        !valores.nivel ||
+        q.nivel === this.formatarValor('nivel', valores.nivel);
 
-        if (atendeBancaFiltro && atendeNivelFiltro && q.cargo) {
-          cargosSet.add(q.cargo);
-        }
+      if (atendeBancaFiltro && atendeNivelFiltro2 && q.cargo) {
+        cargosSet.add(q.cargo);
       }
 
-      // Adicionar NÍVEL se: não tem nível selecionado E atende os outros filtros (banca/cargo)
-      if (!valores.nivel) {
-        const atendeBancaFiltro =
-          !valores.banca ||
-          q.banca === this.formatarValor('banca', valores.banca);
-        const atendeCargoFiltro =
-          !valores.cargo ||
-          q.cargo === this.formatarValor('cargo', valores.cargo);
+      // Adicionar NÍVEL se atende os outros filtros (banca/cargo)
+      const atendeBancaFiltro2 =
+        !valores.banca ||
+        q.banca === this.formatarValor('banca', valores.banca);
+      const atendeCargoFiltro2 =
+        !valores.cargo ||
+        q.cargo === this.formatarValor('cargo', valores.cargo);
 
-        if (atendeBancaFiltro && atendeCargoFiltro && q.nivel) {
-          niveisSet.add(q.nivel);
-        }
+      if (atendeBancaFiltro2 && atendeCargoFiltro2 && q.nivel) {
+        niveisSet.add(q.nivel);
       }
     });
 
