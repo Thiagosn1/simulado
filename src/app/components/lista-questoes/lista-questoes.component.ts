@@ -324,6 +324,11 @@ export class ListaQuestoesComponent implements OnInit {
       return;
     }
 
+    console.log(
+      '🔍 CORRIGINDO SIMULADO - this.questoes:',
+      this.questoes.map((q) => q.id)
+    );
+
     // Adicionar questões ao histórico
     this.questoes.forEach((questao) => {
       this.historicoService.adicionarQuestaoRespondida(questao.id);
