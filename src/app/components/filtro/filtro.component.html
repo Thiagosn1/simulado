@@ -7,13 +7,12 @@
     <label for="banca">Banca:</label>
     <select id="banca" formControlName="banca">
       <option value="">Todas</option>
-      <option value="funatec">FUNATEC</option>
-      <option value="aroeira">Fundação Aroeira</option>
-      <option value="ganzaroli">Ganzaroli Assessoria</option>
-      <option value="verbena">Instituto Verbena/UFG</option>
-      <option value="itame">ITAME</option>
-      <option value="reis">Reis & Reis</option>
-      <option value="nao informada">Não informada</option>
+      <option
+        *ngFor="let banca of bancasDisponiveis"
+        [value]="obterChaveSelect('banca', banca)"
+      >
+        {{ banca }}
+      </option>
     </select>
   </div>
 
@@ -21,12 +20,12 @@
     <label for="cargo">Cargo:</label>
     <select id="cargo" formControlName="cargo">
       <option value="">Todos</option>
-      <option value="assistente administrativo">
-        Assistente Administrativo
+      <option
+        *ngFor="let cargo of cargosDisponiveis"
+        [value]="obterChaveSelect('cargo', cargo)"
+      >
+        {{ cargo }}
       </option>
-      <option value="tecnico em informatica">Técnico em Informática</option>
-      <option value="professor de informatica">Professor de Informática</option>
-      <option value="secretario auxiliar">Secretário Auxiliar</option>
     </select>
   </div>
 
@@ -34,9 +33,12 @@
     <label for="nivel">Nível:</label>
     <select id="nivel" formControlName="nivel">
       <option value="">Todos</option>
-      <option value="fundamental">Fundamental</option>
-      <option value="medio">Médio</option>
-      <option value="superior">Superior</option>
+      <option
+        *ngFor="let nivel of niveisDisponiveis"
+        [value]="obterChaveSelect('nivel', nivel)"
+      >
+        {{ nivel }}
+      </option>
     </select>
   </div>
 
