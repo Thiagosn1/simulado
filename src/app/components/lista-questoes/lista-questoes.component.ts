@@ -178,6 +178,12 @@ export class ListaQuestoesComponent implements OnInit {
         }
 
         this.questoes = this.sortearQuestoes(questoes, 10);
+        console.log('=== QUESTÕES ATRIBUÍDAS A this.questoes ===');
+        console.log('Total:', this.questoes.length);
+        console.log(
+          'IDs:',
+          this.questoes.map((q) => q.id)
+        );
       });
   }
 
