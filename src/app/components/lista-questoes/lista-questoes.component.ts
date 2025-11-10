@@ -49,18 +49,7 @@ export class ListaQuestoesComponent implements OnInit {
     private questoesService: QuestoesService,
     private historicoService: HistoricoService,
     @Inject(PLATFORM_ID) private platformId: Object
-  ) {
-    // Observar mudanças no histórico (mas não recarregar para evitar loop)
-    this.historicoService
-      .getHistoricoObservable()
-      .subscribe((questoesRespondidas) => {
-        console.log(
-          'Histórico atualizado via Observable:',
-          questoesRespondidas.size,
-          'questões'
-        );
-      });
-  }
+  ) {}
 
   ngOnInit() {
     // Carregar filtros salvos do localStorage (apenas no browser)
@@ -117,8 +106,6 @@ export class ListaQuestoesComponent implements OnInit {
             nivel: nivel?.trim(),
           };
 
-          console.log('Filtros aplicados:', filtros);
-
           const questoesFiltradas = questoesComImagem.filter((questao) => {
             return Object.entries(filtros).every(([campo, valor]) => {
               return !valor || questao[campo as keyof typeof questao] === valor;
@@ -156,15 +143,6 @@ export class ListaQuestoesComponent implements OnInit {
         const questoesRespondidas =
           this.historicoService.getQuestoesRespondidas();
 
-        console.log(
-          'Total de questões respondidas no histórico:',
-          questoesRespondidas.size
-        );
-        console.log(
-          'IDs das questões respondidas (tipo):',
-          Array.from(questoesRespondidas).map((id) => ({ id, tipo: typeof id }))
-        );
-
         const todasDependentes = new Set(
           Object.values(this.questoesPrincipais).flat()
         );
@@ -173,22 +151,8 @@ export class ListaQuestoesComponent implements OnInit {
         const questoesRespondidasNoFiltro = questoes.filter((q) => {
           const questaoIdString = String(q.id);
           const estaRespondida = questoesRespondidas.has(questaoIdString);
-          console.log(
-            `Questão ${
-              q.id
-            } (tipo: ${typeof q.id}) - String: ${questaoIdString} - Está respondida: ${estaRespondida}`
-          );
           return estaRespondida;
         });
-
-        console.log(
-          'Questões respondidas no filtro atual:',
-          questoesRespondidasNoFiltro.length
-        );
-        console.log(
-          'IDs das questões no filtro (tipo):',
-          questoes.map((q) => ({ id: q.id, tipo: typeof q.id }))
-        );
 
         // Atualizar total de questões respondidas (do filtro atual)
         this.totalQuestoesRespondidas = questoesRespondidasNoFiltro.length;
@@ -202,9 +166,6 @@ export class ListaQuestoesComponent implements OnInit {
 
         // Se não há questões não respondidas disponíveis, limpar histórico
         if (questoesDisponiveisNaoRespondidas.length === 0) {
-          console.log(
-            'Todas as questões disponíveis foram respondidas - Limpando histórico do filtro atual'
-          );
           this.mensagem =
             'Parabéns! Você respondeu todas as questões disponíveis para este filtro. O histórico foi resetado!';
           this.historicoService.limparHistorico();
@@ -238,10 +199,6 @@ export class ListaQuestoesComponent implements OnInit {
       (q) =>
         !questoesRespondidas.has(String(q.id)) &&
         !todasDependentes.has(Number(q.id))
-    );
-
-    console.log(
-      `Questões disponíveis para sortear: ${questoesDisponiveis.length}`
     );
 
     // Se não houver questões disponíveis, retornar vazio
@@ -288,7 +245,6 @@ export class ListaQuestoesComponent implements OnInit {
       questoesDisponiveis.splice(index, 1);
     }
 
-    console.log(`Questões sorteadas: ${questoesSorteadas.length}`);
     return questoesSorteadas;
   }
 
