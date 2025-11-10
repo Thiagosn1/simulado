@@ -340,8 +340,6 @@ export class ListaQuestoesComponent implements OnInit {
         this.totalQuestoesRespondidas = questoesRespondidas.size;
       }
     }, 100);
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   obterClasseAlternativa(questaoId: string, alternativaId: number): string {
@@ -400,29 +398,23 @@ export class ListaQuestoesComponent implements OnInit {
   }
 
   resetarHistoricoCompleto() {
-    if (
-      confirm(
-        'Tem certeza que deseja resetar todo o histórico de questões respondidas?'
-      )
-    ) {
-      this.historicoService.limparHistorico();
-      this.resultado = null;
-      this.alternativaSelecionada = {};
-      this.mensagem = 'Histórico resetado com sucesso!';
+    this.historicoService.limparHistorico();
+    this.resultado = null;
+    this.alternativaSelecionada = {};
+    this.mensagem = 'Histórico resetado com sucesso!';
 
-      // Atualizar estatísticas - será atualizado automaticamente pelo observable
-      this.totalQuestoesRespondidas = 0;
+    // Atualizar estatísticas - será atualizado automaticamente pelo observable
+    this.totalQuestoesRespondidas = 0;
 
-      setTimeout(() => {
-        this.mensagem = null;
-        this.carregarQuestoes(
-          this.filtrosAtuais.cargo,
-          this.filtrosAtuais.nivel,
-          this.filtrosAtuais.banca
-        );
-      }, 2000);
+    setTimeout(() => {
+      this.mensagem = null;
+      this.carregarQuestoes(
+        this.filtrosAtuais.cargo,
+        this.filtrosAtuais.nivel,
+        this.filtrosAtuais.banca
+      );
+    }, 2000);
 
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
