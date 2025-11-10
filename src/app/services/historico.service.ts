@@ -3,7 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 interface QuestaoRespondida {
-  id: string;
+  id: number;
   timestamp: number;
 }
 
@@ -15,7 +15,7 @@ export class HistoricoService {
   private readonly STORE_NAME = 'questoesRespondidas';
   private readonly DB_VERSION = 1;
   private db?: IDBDatabase;
-  private historico$ = new BehaviorSubject<Set<string>>(new Set());
+  private historico$ = new BehaviorSubject<Set<number>>(new Set());
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {
     if (isPlatformBrowser(this.platformId)) {
@@ -64,8 +64,8 @@ export class HistoricoService {
     const request = store.getAll();
 
     request.onsuccess = () => {
-      // Garantir que todos os IDs sejam strings
-      const questoes = new Set(request.result.map((item) => String(item.id)));
+      // Garantir que todos os IDs sejam números
+      const questoes = new Set(request.result.map((item) => Number(item.id)));
       this.historico$.next(questoes);
       console.log('Questões carregadas do IndexedDB:', Array.from(questoes));
     };
@@ -75,15 +75,15 @@ export class HistoricoService {
     };
   }
 
-  getQuestoesRespondidas(): Set<string> {
+  getQuestoesRespondidas(): Set<number> {
     return new Set(this.historico$.value);
   }
 
   adicionarQuestaoRespondida(questaoId: string | number): void {
-    // Garantir que sempre seja string
-    const idString = String(questaoId);
+    // Garantir que sempre seja number
+    const idNumber = Number(questaoId);
 
-    if (!this.db || !idString) {
+    if (!this.db || !idNumber) {
       console.warn('Banco não inicializado ou ID inválido');
       return;
     }
@@ -92,7 +92,7 @@ export class HistoricoService {
     const store = transaction.objectStore(this.STORE_NAME);
 
     const questao: QuestaoRespondida = {
-      id: idString,
+      id: idNumber,
       timestamp: Date.now(),
     };
 
@@ -100,9 +100,9 @@ export class HistoricoService {
 
     request.onsuccess = () => {
       const questoes = new Set(this.historico$.value);
-      questoes.add(idString);
+      questoes.add(idNumber);
       this.historico$.next(questoes);
-      console.log(`Questão ${idString} adicionada ao histórico`);
+      console.log(`Questão ${idNumber} adicionada ao histórico`);
     };
 
     request.onerror = () => {
@@ -127,7 +127,7 @@ export class HistoricoService {
     };
   }
 
-  getHistoricoObservable(): Observable<Set<string>> {
+  getHistoricoObservable(): Observable<Set<number>> {
     return this.historico$.asObservable();
   }
 

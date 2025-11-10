@@ -24,7 +24,7 @@ type Resultado = {
 })
 export class ListaQuestoesComponent implements OnInit {
   questoes: Questao[] = [];
-  alternativaSelecionada: { [key: string]: number | undefined } = {};
+  alternativaSelecionada: { [key: number]: number | undefined } = {};
   resultado: Resultado | null = null;
   mensagem: string | null = null;
   filtrosAtuais: { cargo?: string; nivel?: string; banca?: string } = {};
@@ -40,9 +40,8 @@ export class ListaQuestoesComponent implements OnInit {
     217: [218],
     221: [222, 223, 224],
     227: [228],
-    272: [273, 274, 275, 276, 277, 278, 279],
-    280: [281],
-    441: [442],
+    272: [273],
+    433: [434],
   };
 
   constructor(
@@ -72,12 +71,12 @@ export class ListaQuestoesComponent implements OnInit {
 
   carregarQuestoes(cargo?: string, nivel?: string, banca?: string) {
     const questoesComImagensMap: Record<
-      string,
+      number,
       { imagem: string; legenda?: string }
     > = {
-      '226': { imagem: 'figura1.png' },
-      '230': { imagem: 'figura2.png' },
-      '447': {
+      226: { imagem: 'figura1.png' },
+      230: { imagem: 'figura2.png' },
+      447: {
         imagem: 'figura3.png',
         legenda:
           'Disponível em: https://tirasarmandinho.tumblr.com/post/134547196389/um-novo-recuo-uma-boanotícia-na-sexta-são. Acesso em 10 de novembro de 2025.',
@@ -149,8 +148,7 @@ export class ListaQuestoesComponent implements OnInit {
 
         // Contar quantas questões do filtro atual já foram respondidas
         const questoesRespondidasNoFiltro = questoes.filter((q) => {
-          const questaoIdString = String(q.id);
-          const estaRespondida = questoesRespondidas.has(questaoIdString);
+          const estaRespondida = questoesRespondidas.has(q.id);
           return estaRespondida;
         });
 
@@ -160,7 +158,7 @@ export class ListaQuestoesComponent implements OnInit {
         // Contar questões disponíveis não respondidas (excluindo dependentes)
         const questoesDisponiveisNaoRespondidas = questoes.filter(
           (q) =>
-            !questoesRespondidas.has(String(q.id)) &&
+            !questoesRespondidas.has(q.id) &&
             !todasDependentes.has(Number(q.id))
         );
 
@@ -178,12 +176,6 @@ export class ListaQuestoesComponent implements OnInit {
         }
 
         this.questoes = this.sortearQuestoes(questoes, 10);
-        console.log('=== QUESTÕES ATRIBUÍDAS A this.questoes ===');
-        console.log('Total:', this.questoes.length);
-        console.log(
-          'IDs:',
-          this.questoes.map((q) => q.id)
-        );
       });
   }
 
@@ -203,8 +195,7 @@ export class ListaQuestoesComponent implements OnInit {
     // Filtrar questões principais não respondidas (não dependentes)
     const questoesDisponiveis = questoes.filter(
       (q) =>
-        !questoesRespondidas.has(String(q.id)) &&
-        !todasDependentes.has(Number(q.id))
+        !questoesRespondidas.has(q.id) && !todasDependentes.has(Number(q.id))
     );
 
     // Se não houver questões disponíveis, retornar vazio
@@ -219,15 +210,6 @@ export class ListaQuestoesComponent implements OnInit {
       const index = Math.floor(Math.random() * questoesDisponiveis.length);
       const questaoSorteada = questoesDisponiveis[index];
 
-      // Log quando sorteia a 272
-      if (Number(questaoSorteada.id) === 272) {
-        console.log('🎲 QUESTÃO 272 SORTEADA!');
-        console.log(
-          'Posição atual em questoesSorteadas:',
-          questoesSorteadas.length
-        );
-      }
-
       // Usar ID como número para verificar dependentes
       const dependentes =
         this.questoesPrincipais[Number(questaoSorteada.id)] || [];
@@ -235,7 +217,7 @@ export class ListaQuestoesComponent implements OnInit {
       // Verificar se TODAS as dependentes NÃO foram respondidas
       const todasDependentesDisponiveis = dependentes.every((depId) => {
         const questaoDep = questoes.find((q) => Number(q.id) === depId);
-        return questaoDep && !questoesRespondidas.has(String(questaoDep.id));
+        return questaoDep && !questoesRespondidas.has(questaoDep.id);
       });
 
       // Se alguma dependente foi respondida, pular esta questão completamente
@@ -250,13 +232,6 @@ export class ListaQuestoesComponent implements OnInit {
       if (questoesSorteadas.length + totalNecessario <= quantidade) {
         questoesSorteadas.push(questaoSorteada);
 
-        // Log para debug
-        if (Number(questaoSorteada.id) === 272) {
-          console.log('=== ADICIONANDO 272 ===');
-          console.log('Dependentes esperadas:', dependentes);
-          console.log('Total de questões no array completo:', questoes.length);
-        }
-
         // Adicionar TODAS as questões dependentes
         for (const depId of dependentes) {
           const questaoDependente = questoes.find(
@@ -264,25 +239,7 @@ export class ListaQuestoesComponent implements OnInit {
           );
           if (questaoDependente) {
             questoesSorteadas.push(questaoDependente);
-            if (Number(questaoSorteada.id) === 272) {
-              console.log('✓ Dependente adicionada:', questaoDependente.id);
-            }
-          } else {
-            if (dependentes.includes(depId)) {
-              console.error(
-                '✗ Dependente NÃO ENCONTRADA no array de questões:',
-                depId
-              );
-            }
           }
-        }
-
-        if (Number(questaoSorteada.id) === 272) {
-          console.log('Total sorteado até agora:', questoesSorteadas.length);
-          console.log(
-            'IDs sorteados:',
-            questoesSorteadas.map((q) => q.id)
-          );
         }
         // Remove da lista de disponíveis
         questoesDisponiveis.splice(index, 1);
@@ -309,7 +266,7 @@ export class ListaQuestoesComponent implements OnInit {
     this.carregarQuestoes(filtros.cargo, filtros.nivel, filtros.banca);
   }
 
-  selecionarAlternativa(questaoId: string, alternativaId: number) {
+  selecionarAlternativa(questaoId: number, alternativaId: number) {
     this.alternativaSelecionada[questaoId] = alternativaId;
   }
 
@@ -323,11 +280,6 @@ export class ListaQuestoesComponent implements OnInit {
     if (!this.todasQuestoesRespondidas()) {
       return;
     }
-
-    console.log(
-      '🔍 CORRIGINDO SIMULADO - this.questoes:',
-      this.questoes.map((q) => q.id)
-    );
 
     // Adicionar questões ao histórico
     this.questoes.forEach((questao) => {
@@ -388,7 +340,7 @@ export class ListaQuestoesComponent implements OnInit {
             });
 
             const questoesRespondidasNoFiltro = todasQuestoesFiltradas.filter(
-              (q) => questoesRespondidas.has(String(q.id))
+              (q) => questoesRespondidas.has(q.id)
             );
             this.totalQuestoesRespondidas = questoesRespondidasNoFiltro.length;
           });
@@ -399,7 +351,7 @@ export class ListaQuestoesComponent implements OnInit {
     }, 100);
   }
 
-  obterClasseAlternativa(questaoId: string, alternativaId: number): string {
+  obterClasseAlternativa(questaoId: number, alternativaId: number): string {
     if (!this.resultado) {
       return this.alternativaSelecionada[questaoId] === alternativaId
         ? 'selecionada'

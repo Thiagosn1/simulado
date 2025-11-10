@@ -1,7 +1,7 @@
 import { SafeHtml } from '@angular/platform-browser';
 
 export interface Questao {
-  id: string;
+  id: number;
   cargo: string;
   nivel: string;
   prova: string;
