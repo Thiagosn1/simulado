@@ -77,9 +77,17 @@ export class ListaQuestoesComponent implements OnInit {
   }
 
   carregarQuestoes(cargo?: string, nivel?: string, banca?: string) {
-    const questoesComImagensMap: Record<string, string> = {
-      '226': 'figura1.png',
-      '230': 'figura2.png',
+    const questoesComImagensMap: Record<
+      string,
+      { imagem: string; legenda?: string }
+    > = {
+      '226': { imagem: 'figura1.png' },
+      '230': { imagem: 'figura2.png' },
+      '447': {
+        imagem: 'figura3.png',
+        legenda:
+          'Disponível em: https://tirasarmandinho.tumblr.com/post/134547196389/um-novo-recuo-uma-boanotícia-na-sexta-são. Acesso em 10 de novembro de 2025.',
+      },
     };
 
     this.questoesService
@@ -87,11 +95,12 @@ export class ListaQuestoesComponent implements OnInit {
       .pipe(
         map((questoes) => {
           const questoesComImagem = questoes.map((questao) => {
-            const imagem = questoesComImagensMap[questao.id];
-            if (imagem) {
+            const imagemConfig = questoesComImagensMap[questao.id];
+            if (imagemConfig) {
               return {
                 ...questao,
-                imagem,
+                imagem: imagemConfig.imagem,
+                legendaImagem: imagemConfig.legenda,
               };
             }
             return questao;

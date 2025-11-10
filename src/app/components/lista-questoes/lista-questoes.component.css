@@ -284,6 +284,15 @@
   margin-right: auto;
 }
 
+.legenda-imagem {
+  font-size: 0.875rem;
+  color: #64748b;
+  text-align: center;
+  font-style: italic;
+  margin: 0.5rem 0 1rem 0;
+  line-height: 1.4;
+}
+
 @media (max-width: 768px) {
   .questao-card {
     max-width: 500px;

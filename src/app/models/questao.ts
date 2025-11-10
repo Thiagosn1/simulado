@@ -8,6 +8,7 @@ export interface Questao {
   banca: string;
   enunciado: string;
   imagem?: string;
+  legendaImagem?: string;
   alternativas: { id: number; texto: string }[];
   resposta_correta: number;
 }

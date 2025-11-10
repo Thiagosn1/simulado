@@ -67,6 +67,10 @@
         class="imagem-questao"
       />
 
+      <p *ngIf="questao.legendaImagem" class="legenda-imagem">
+        {{ questao.legendaImagem }}
+      </p>
+
       <div class="alternativas-lista">
         <div
           *ngFor="let alternativa of questao.alternativas"
