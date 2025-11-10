@@ -100,7 +100,11 @@
       Sortear Novas Questões
     </button>
 
-    <button class="resetar-historico-btn" (click)="resetarHistoricoCompleto()">
+    <button
+      *ngIf="totalQuestoesRespondidas > 0"
+      class="resetar-historico-btn"
+      (click)="resetarHistoricoCompleto()"
+    >
       Resetar Histórico
     </button>
   </div>
