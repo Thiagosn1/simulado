@@ -219,6 +219,15 @@ export class ListaQuestoesComponent implements OnInit {
       const index = Math.floor(Math.random() * questoesDisponiveis.length);
       const questaoSorteada = questoesDisponiveis[index];
 
+      // Log quando sorteia a 272
+      if (Number(questaoSorteada.id) === 272) {
+        console.log('🎲 QUESTÃO 272 SORTEADA!');
+        console.log(
+          'Posição atual em questoesSorteadas:',
+          questoesSorteadas.length
+        );
+      }
+
       // Usar ID como número para verificar dependentes
       const dependentes =
         this.questoesPrincipais[Number(questaoSorteada.id)] || [];
