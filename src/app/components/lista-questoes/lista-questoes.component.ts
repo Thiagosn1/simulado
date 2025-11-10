@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { Questao } from '../../models/questao';
 import { QuestoesService } from '../../services/questoes.service';
 import { FiltroComponent } from '../filtro/filtro.component';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { catchError, map, of } from 'rxjs';
 import { HistoricoService } from '../../services/historico.service';
 
@@ -47,7 +47,8 @@ export class ListaQuestoesComponent implements OnInit {
 
   constructor(
     private questoesService: QuestoesService,
-    private historicoService: HistoricoService
+    private historicoService: HistoricoService,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {
     // Observar mudanças no histórico (mas não recarregar para evitar loop)
     this.historicoService
@@ -62,15 +63,19 @@ export class ListaQuestoesComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Carregar filtros salvos do localStorage
-    const filtrosSalvos = localStorage.getItem('filtrosAtuais');
-    if (filtrosSalvos) {
-      this.filtrosAtuais = JSON.parse(filtrosSalvos);
-      this.carregarQuestoes(
-        this.filtrosAtuais.cargo,
-        this.filtrosAtuais.nivel,
-        this.filtrosAtuais.banca
-      );
+    // Carregar filtros salvos do localStorage (apenas no browser)
+    if (isPlatformBrowser(this.platformId)) {
+      const filtrosSalvos = localStorage.getItem('filtrosAtuais');
+      if (filtrosSalvos) {
+        this.filtrosAtuais = JSON.parse(filtrosSalvos);
+        this.carregarQuestoes(
+          this.filtrosAtuais.cargo,
+          this.filtrosAtuais.nivel,
+          this.filtrosAtuais.banca
+        );
+      } else {
+        this.carregarQuestoes();
+      }
     } else {
       this.carregarQuestoes();
     }
@@ -289,8 +294,10 @@ export class ListaQuestoesComponent implements OnInit {
 
   aplicarFiltros(filtros: { cargo?: string; nivel?: string; banca?: string }) {
     this.filtrosAtuais = filtros;
-    // Salvar filtros no localStorage
-    localStorage.setItem('filtrosAtuais', JSON.stringify(filtros));
+    // Salvar filtros no localStorage (apenas no browser)
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('filtrosAtuais', JSON.stringify(filtros));
+    }
     this.carregarQuestoes(filtros.cargo, filtros.nivel, filtros.banca);
   }
 

@@ -1,5 +1,12 @@
-import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import {
+  Component,
+  EventEmitter,
+  Inject,
+  OnInit,
+  Output,
+  PLATFORM_ID,
+} from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 type FiltroValues = {
@@ -48,7 +55,10 @@ export class FiltroComponent implements OnInit {
   filtroForm: FormGroup;
   @Output() filtroAplicado = new EventEmitter<Partial<FiltroValues>>();
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {
     this.filtroForm = this.fb.group({
       cargo: [''],
       nivel: [''],
@@ -57,19 +67,21 @@ export class FiltroComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Carregar filtros salvos do localStorage
-    const filtrosSalvos = localStorage.getItem('filtrosAtuais');
-    if (filtrosSalvos) {
-      const filtros = JSON.parse(filtrosSalvos);
+    // Carregar filtros salvos do localStorage (apenas no browser)
+    if (isPlatformBrowser(this.platformId)) {
+      const filtrosSalvos = localStorage.getItem('filtrosAtuais');
+      if (filtrosSalvos) {
+        const filtros = JSON.parse(filtrosSalvos);
 
-      // Converter os valores formatados de volta para as chaves do select
-      const filtrosParaForm = {
-        cargo: this.obterChavePorValor('cargo', filtros.cargo || ''),
-        nivel: this.obterChavePorValor('nivel', filtros.nivel || ''),
-        banca: this.obterChavePorValor('banca', filtros.banca || ''),
-      };
+        // Converter os valores formatados de volta para as chaves do select
+        const filtrosParaForm = {
+          cargo: this.obterChavePorValor('cargo', filtros.cargo || ''),
+          nivel: this.obterChavePorValor('nivel', filtros.nivel || ''),
+          banca: this.obterChavePorValor('banca', filtros.banca || ''),
+        };
 
-      this.filtroForm.patchValue(filtrosParaForm);
+        this.filtroForm.patchValue(filtrosParaForm);
+      }
     }
   }
 
