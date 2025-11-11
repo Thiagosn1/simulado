@@ -99,8 +99,6 @@ export class ListaQuestoesComponent implements OnInit {
       .getQuestoes(cargo, nivel, banca)
       .pipe(
         map((questoes) => {
-          console.log('Questões recebidas da API no pipe:', questoes.length);
-
           const questoesComImagem = questoes.map((questao) => {
             const imagemConfig = questoesComImagensMap[questao.id];
             if (imagemConfig) {
@@ -113,26 +111,17 @@ export class ListaQuestoesComponent implements OnInit {
             return questao;
           });
 
-          console.log(
-            'Questões após adicionar imagens:',
-            questoesComImagem.length
-          );
-
           const filtros = {
             banca: banca?.trim(),
             cargo: cargo?.trim(),
             nivel: nivel?.trim(),
           };
 
-          console.log('Filtros aplicados:', filtros);
-
           const questoesFiltradas = questoesComImagem.filter((questao) => {
             return Object.entries(filtros).every(([campo, valor]) => {
               return !valor || questao[campo as keyof typeof questao] === valor;
             });
           });
-
-          console.log('Questões após filtro:', questoesFiltradas.length);
 
           if (questoesFiltradas.length === 0) {
             const filtrosAplicados = Object.entries(filtros)
