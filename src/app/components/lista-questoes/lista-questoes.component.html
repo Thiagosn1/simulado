@@ -98,11 +98,20 @@
       class="corrigir-simulado-btn"
       (click)="corrigirSimulado()"
       [disabled]="!todasQuestoesRespondidas()"
+      [title]="
+        !todasQuestoesRespondidas()
+          ? 'Responda todas as questões para corrigir'
+          : 'Clique para corrigir o simulado'
+      "
     >
       Corrigir Simulado
     </button>
 
-    <button class="sortear-questoes-btn" (click)="sortearNovasQuestoes()">
+    <button
+      class="sortear-questoes-btn"
+      (click)="sortearNovasQuestoes()"
+      title="Sortear um novo conjunto de questões"
+    >
       Sortear Novas Questões
     </button>
 
@@ -110,6 +119,7 @@
       *ngIf="totalQuestoesRespondidas > 0"
       class="resetar-historico-btn"
       (click)="resetarHistoricoCompleto()"
+      title="Limpar todas as questões respondidas do histórico"
     >
       Resetar Histórico
     </button>
