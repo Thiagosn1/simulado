@@ -3,6 +3,7 @@ import { Questao } from '../../models/questao';
 import { QuestoesService } from '../../services/questoes.service';
 import { FiltroComponent } from '../filtro/filtro.component';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { catchError, map, of } from 'rxjs';
 import { HistoricoService } from '../../services/historico.service';
 
@@ -18,7 +19,7 @@ type Resultado = {
 @Component({
   selector: 'app-lista-questoes',
   standalone: true,
-  imports: [FiltroComponent, CommonModule],
+  imports: [FiltroComponent, CommonModule, MatTooltipModule],
   templateUrl: './lista-questoes.component.html',
   styleUrl: './lista-questoes.component.css',
 })
@@ -27,6 +28,7 @@ export class ListaQuestoesComponent implements OnInit {
   alternativaSelecionada: { [key: number]: number | undefined } = {};
   resultado: Resultado | null = null;
   mensagem: string | null = null;
+  tipoMensagem: 'sucesso' | 'erro' | 'info' | null = null;
   filtrosAtuais: { cargo?: string; nivel?: string; banca?: string } = {};
   carregando: boolean = false;
 
@@ -128,6 +130,7 @@ export class ListaQuestoesComponent implements OnInit {
               .join('');
 
             this.mensagem = `Nenhuma questão encontrada${filtrosAplicados}.`;
+            this.tipoMensagem = 'info';
             return [];
           }
 
@@ -136,6 +139,7 @@ export class ListaQuestoesComponent implements OnInit {
         catchError((err: Error) => {
           console.error('Erro ao carregar questões:', err);
           this.mensagem = 'Ocorreu um erro ao buscar as questões.';
+          this.tipoMensagem = 'erro';
           this.carregando = false;
           return of([]);
         })
@@ -178,10 +182,12 @@ export class ListaQuestoesComponent implements OnInit {
         if (questoesDisponiveisNaoRespondidas.length === 0) {
           this.mensagem =
             'Parabéns! Você respondeu todas as questões disponíveis para este filtro. O histórico foi resetado!';
+          this.tipoMensagem = 'sucesso';
           this.historicoService.limparHistorico();
           // Recarregar as questões após limpar
           setTimeout(() => {
             this.mensagem = null;
+            this.tipoMensagem = null;
             this.carregarQuestoes(cargo, nivel, banca);
           }, 3000);
           return;
@@ -409,6 +415,7 @@ export class ListaQuestoesComponent implements OnInit {
     this.resultado = null;
     this.alternativaSelecionada = {};
     this.mensagem = null;
+    this.tipoMensagem = null;
 
     this.carregarQuestoes(
       this.filtrosAtuais.cargo,
@@ -424,12 +431,14 @@ export class ListaQuestoesComponent implements OnInit {
     this.resultado = null;
     this.alternativaSelecionada = {};
     this.mensagem = 'Histórico resetado com sucesso!';
+    this.tipoMensagem = 'sucesso';
 
     // Atualizar estatísticas - será atualizado automaticamente pelo observable
     this.totalQuestoesRespondidas = 0;
 
     setTimeout(() => {
       this.mensagem = null;
+      this.tipoMensagem = null;
       this.carregarQuestoes(
         this.filtrosAtuais.cargo,
         this.filtrosAtuais.nivel,

@@ -21,8 +21,16 @@
     </div>
   </div>
 
-  <div *ngIf="mensagem" class="mensagem-erro">
-    {{ mensagem }}
+  <div
+    *ngIf="mensagem"
+    class="mensagem"
+    [ngClass]="{
+      'mensagem-sucesso': tipoMensagem === 'sucesso',
+      'mensagem-erro': tipoMensagem === 'erro',
+      'mensagem-info': tipoMensagem === 'info'
+    }"
+  >
+    <span class="mensagem-texto">{{ mensagem }}</span>
   </div>
 
   <!-- Indicador de Carregamento -->
@@ -94,34 +102,46 @@
   </div>
 
   <div *ngIf="!carregando" class="botoes-container">
-    <button
-      class="corrigir-simulado-btn"
-      (click)="corrigirSimulado()"
-      [disabled]="!todasQuestoesRespondidas()"
-      [title]="
+    <!-- Tooltip wrapper para permitir tooltip em botão desabilitado -->
+    <span
+      class="tooltip-wrapper"
+      matTooltip="{{
         !todasQuestoesRespondidas()
           ? 'Responda todas as questões para corrigir'
           : 'Clique para corrigir o simulado'
-      "
+      }}"
+      matTooltipPosition="above"
     >
-      Corrigir Simulado
-    </button>
+      <button
+        class="corrigir-simulado-btn"
+        (click)="corrigirSimulado()"
+        [disabled]="!todasQuestoesRespondidas()"
+      >
+        Corrigir Simulado
+      </button>
+    </span>
 
     <button
       class="sortear-questoes-btn"
       (click)="sortearNovasQuestoes()"
-      title="Sortear um novo conjunto de questões"
+      matTooltip="Sortear um novo conjunto de questões"
+      matTooltipPosition="above"
     >
       Sortear Novas Questões
     </button>
 
-    <button
+    <span
       *ngIf="totalQuestoesRespondidas > 0"
-      class="resetar-historico-btn"
-      (click)="resetarHistoricoCompleto()"
-      title="Limpar todas as questões respondidas do histórico"
+      class="tooltip-wrapper"
+      matTooltip="Limpar todas as questões respondidas do histórico"
+      matTooltipPosition="above"
     >
-      Resetar Histórico
-    </button>
+      <button
+        class="resetar-historico-btn"
+        (click)="resetarHistoricoCompleto()"
+      >
+        Resetar Histórico
+      </button>
+    </span>
   </div>
 </div>
