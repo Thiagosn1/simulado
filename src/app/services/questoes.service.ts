@@ -7,7 +7,6 @@ import { Questao } from '../models/questao';
   providedIn: 'root',
 })
 export class QuestoesService {
-  //private apiUrl = 'https://ff80f4e6-9b4e-4924-b8bc-8afa9cd87dd5-00-3499r2ob8iwxn.picard.replit.dev/api/questoes';
   private apiUrl = 'https://banco-questoes-api.onrender.com/api/questoes';
 
   constructor(private http: HttpClient) {}
@@ -23,6 +22,16 @@ export class QuestoesService {
     if (nivel) params = params.set('nivel', nivel);
     if (banca) params = params.set('banca', banca);
 
-    return this.http.get<Questao[]>(this.apiUrl, { params });
+    // Adicionar timestamp para evitar cache
+    params = params.set('_t', Date.now().toString());
+
+    return this.http.get<Questao[]>(this.apiUrl, {
+      params,
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        Pragma: 'no-cache',
+        Expires: '0',
+      },
+    });
   }
 }
