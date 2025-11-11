@@ -111,7 +111,9 @@
           : 'Clique para corrigir o simulado'
       }}"
       matTooltipPosition="above"
-      matTooltipClass="tooltip-verde"
+      [matTooltipClass]="
+        !todasQuestoesRespondidas() ? 'tooltip-cinza' : 'tooltip-verde'
+      "
     >
       <button
         class="corrigir-simulado-btn"
