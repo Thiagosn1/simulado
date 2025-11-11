@@ -10,18 +10,33 @@ body {
 
 /* Customização dos tooltips do Material */
 .mat-mdc-tooltip {
-  background-color: #1f2937 !important;
   color: #ffffff !important;
   font-size: 0.875rem !important;
   padding: 0.5rem 0.75rem !important;
   border-radius: 0.375rem !important;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3) !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2) !important;
+  white-space: nowrap !important;
 }
 
 .mat-mdc-tooltip .mdc-tooltip__surface {
-  background-color: #1f2937 !important;
   color: #ffffff !important;
   font-size: 0.875rem !important;
   padding: 0.5rem 0.75rem !important;
   border-radius: 0.375rem !important;
+  white-space: nowrap !important;
+}
+
+/* Tooltip Verde (Botão Corrigir) */
+.tooltip-verde .mdc-tooltip__surface {
+  background-color: #34d399 !important;
+}
+
+/* Tooltip Azul (Botão Sortear) */
+.tooltip-azul .mdc-tooltip__surface {
+  background-color: #60a5fa !important;
+}
+
+/* Tooltip Vermelho (Botão Resetar) */
+.tooltip-vermelho .mdc-tooltip__surface {
+  background-color: #f87171 !important;
 }
