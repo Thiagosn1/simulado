@@ -28,6 +28,7 @@ export class ListaQuestoesComponent implements OnInit {
   resultado: Resultado | null = null;
   mensagem: string | null = null;
   filtrosAtuais: { cargo?: string; nivel?: string; banca?: string } = {};
+  carregando: boolean = false;
 
   // Estatísticas
   totalQuestoesDisponiveis: number = 0;
@@ -64,12 +65,21 @@ export class ListaQuestoesComponent implements OnInit {
       } else {
         this.carregarQuestoes();
       }
+
+      // Keep-alive: fazer requisição a cada 10 minutos para manter servidor ativo
+      setInterval(() => {
+        this.questoesService.getQuestoes().subscribe({
+          next: () => console.log('Keep-alive: servidor mantido ativo'),
+          error: () => console.warn('Keep-alive: falha ao pingar servidor'),
+        });
+      }, 10 * 60 * 1000); // 10 minutos em milissegundos
     } else {
       this.carregarQuestoes();
     }
   }
 
   carregarQuestoes(cargo?: string, nivel?: string, banca?: string) {
+    this.carregando = true;
     const questoesComImagensMap: Record<
       number,
       { imagem: string; legenda?: string }
@@ -126,6 +136,7 @@ export class ListaQuestoesComponent implements OnInit {
         catchError((err: Error) => {
           console.error('Erro ao carregar questões:', err);
           this.mensagem = 'Ocorreu um erro ao buscar as questões.';
+          this.carregando = false;
           return of([]);
         })
       )
@@ -133,6 +144,7 @@ export class ListaQuestoesComponent implements OnInit {
         if (questoes.length === 0) {
           this.questoes = [];
           this.totalQuestoesDisponiveis = 0;
+          this.carregando = false;
           return;
         }
 
@@ -176,6 +188,7 @@ export class ListaQuestoesComponent implements OnInit {
         }
 
         this.questoes = this.sortearQuestoes(questoes, 10);
+        this.carregando = false;
       });
   }
 

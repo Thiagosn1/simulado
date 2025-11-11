@@ -10,7 +10,7 @@
   </div>
 
   <!-- Estatísticas -->
-  <div class="estatisticas-section">
+  <div *ngIf="!carregando" class="estatisticas-section">
     <div class="estatistica-card">
       <div class="estatistica-label">Total de Questões</div>
       <div class="estatistica-valor">{{ totalQuestoesDisponiveis }}</div>
@@ -25,7 +25,13 @@
     {{ mensagem }}
   </div>
 
-  <div *ngIf="!mensagem" class="questoes-lista">
+  <!-- Indicador de Carregamento -->
+  <div *ngIf="carregando" class="carregamento">
+    <div class="spinner"></div>
+    <p>Carregando questões...</p>
+  </div>
+
+  <div *ngIf="!mensagem && !carregando" class="questoes-lista">
     <div *ngFor="let questao of questoes; let i = index" class="questao-card">
       <div class="questao-tags">
         <div
@@ -79,7 +85,7 @@
     </div>
   </div>
 
-  <div *ngIf="resultado !== null" class="resultado-container">
+  <div *ngIf="resultado !== null && !carregando" class="resultado-container">
     <div class="resultado-box">
       Você acertou {{ resultado.acertos }} questões de {{ questoes.length }} ({{
         resultado.percentual
@@ -87,7 +93,7 @@
     </div>
   </div>
 
-  <div class="botoes-container">
+  <div *ngIf="!carregando" class="botoes-container">
     <button
       class="corrigir-simulado-btn"
       (click)="corrigirSimulado()"
