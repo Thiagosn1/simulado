@@ -153,10 +153,31 @@ export class ListaQuestoesComponent implements OnInit {
         }
 
         // Log para debug: verificar dados da API
-        console.log('Questões recebidas da API:', questoes);
+        console.log('Total de questões recebidas:', questoes.length);
+
+        // Procurar por questões com IDs na faixa 50-60
+        const questoesFaixa = questoes.filter((q) => q.id >= 50 && q.id <= 60);
+        console.log(
+          'Questões IDs 50-60:',
+          questoesFaixa.map((q) => ({
+            id: q.id,
+            cargo: q.cargo,
+            nivel: q.nivel,
+            numAlternativas: q.alternativas.length,
+            alternativasIds: q.alternativas.map((a) => a.id),
+          }))
+        );
+
         questoes.forEach((q) => {
-          if (q.id === 54) {
-            console.log('Questão 54 detalhada:', JSON.stringify(q, null, 2));
+          if (q.id === 53 || q.id === 54 || q.id === 55) {
+            console.log(`Questão ${q.id} detalhada:`, {
+              id: q.id,
+              cargo: q.cargo,
+              nivel: q.nivel,
+              enunciado: q.enunciado.substring(0, 100) + '...',
+              numAlternativas: q.alternativas.length,
+              alternativas: q.alternativas,
+            });
           }
         });
 
