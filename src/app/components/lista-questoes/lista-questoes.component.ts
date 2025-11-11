@@ -152,6 +152,14 @@ export class ListaQuestoesComponent implements OnInit {
           return;
         }
 
+        // Log para debug: verificar dados da API
+        console.log('Questões recebidas da API:', questoes);
+        questoes.forEach((q) => {
+          if (q.id === 54) {
+            console.log('Questão 54 detalhada:', JSON.stringify(q, null, 2));
+          }
+        });
+
         // Atualizar o total de questões disponíveis com base no filtro atual
         this.totalQuestoesDisponiveis = questoes.length;
 
