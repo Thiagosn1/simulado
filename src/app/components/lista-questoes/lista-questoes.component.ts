@@ -82,6 +82,9 @@ export class ListaQuestoesComponent implements OnInit {
 
   carregarQuestoes(cargo?: string, nivel?: string, banca?: string) {
     this.carregando = true;
+    this.questoes = []; // Limpar questões ao iniciar carregamento
+    this.mensagem = null;
+    this.tipoMensagem = null;
     const questoesComImagensMap: Record<
       number,
       { imagem: string; legenda?: string }
