@@ -112,8 +112,6 @@ export class ListaQuestoesComponent implements OnInit {
       },
       605: {
         imagem: 'figura5.png',
-        enunciadoAntes: 'Observe a tabela a seguir.',
-        enunciadoDepois: 'A série histórica...',
       },
     };
 
@@ -239,15 +237,6 @@ export class ListaQuestoesComponent implements OnInit {
 
   formatarEnunciado(enunciado: string, questaoId?: number): string {
     let textoFormatado = enunciado;
-
-    // Formatar títulos de textos para questões específicas (591-599)
-    if (questaoId && questaoId >= 591 && questaoId <= 599) {
-      // Detectar títulos entre ** e substituir por div estilizada
-      textoFormatado = textoFormatado.replace(
-        /\*\*(Dupla dinâmica|A lógica do humor)\*\*/g,
-        '<div class="titulo-texto">$1</div>'
-      );
-    }
 
     // Formatar frações para questão 601
     if (questaoId === 601) {

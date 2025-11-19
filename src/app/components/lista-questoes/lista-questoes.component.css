@@ -483,11 +483,3 @@ sup,
 sub {
   font-size: 0.75em;
 }
-
-.titulo-texto {
-  font-size: 1.2em;
-  font-weight: bold;
-  text-align: center;
-  margin: 1rem 0;
-  color: #1e293b;
-}
