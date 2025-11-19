@@ -460,3 +460,20 @@
     justify-content: center;
   }
 }
+
+.titulo-texto {
+  font-size: 1.2em;
+  font-weight: bold;
+  text-align: center;
+  margin: 1rem 0;
+  color: #1e293b;
+}
+
+.imagem-questao {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1rem auto;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
