@@ -89,7 +89,7 @@ export class ListaQuestoesComponent implements OnInit {
     this.totalQuestoesRespondidas = 0; // Resetar estatísticas
     const questoesComImagensMap: Record<
       number,
-      { imagem: string; legenda?: string }
+      { imagem: string; legenda?: string; dividirEnunciado?: boolean }
     > = {
       226: { imagem: 'figura1.png' },
       230: { imagem: 'figura2.png' },
@@ -98,6 +98,7 @@ export class ListaQuestoesComponent implements OnInit {
         legenda:
           'Disponível em: https://tirasarmandinho.tumblr.com/post/134547196389/um-novo-recuo-uma-boanotícia-na-sexta-são. Acesso em 10 de novembro de 2025.',
       },
+      590: { imagem: 'figura4.png', dividirEnunciado: true },
     };
 
     this.questoesService
@@ -107,11 +108,24 @@ export class ListaQuestoesComponent implements OnInit {
           const questoesComImagem = questoes.map((questao) => {
             const imagemConfig = questoesComImagensMap[questao.id];
             if (imagemConfig) {
-              return {
+              const questaoComImagem: any = {
                 ...questao,
                 imagem: imagemConfig.imagem,
                 legendaImagem: imagemConfig.legenda,
               };
+
+              // Se precisar dividir o enunciado (imagem no meio)
+              if (imagemConfig.dividirEnunciado) {
+                const partesEnunciado = questao.enunciado.split('\n\n');
+                if (partesEnunciado.length >= 2) {
+                  questaoComImagem.enunciadoAntes = partesEnunciado[0];
+                  questaoComImagem.enunciadoDepois = partesEnunciado
+                    .slice(1)
+                    .join('\n\n');
+                }
+              }
+
+              return questaoComImagem;
             }
             return questao;
           });
@@ -203,8 +217,22 @@ export class ListaQuestoesComponent implements OnInit {
       });
   }
 
-  formatarEnunciado(enunciado: string): string {
-    return enunciado.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  formatarEnunciado(enunciado: string, questaoId?: number): string {
+    let textoFormatado = enunciado.replace(
+      /\*\*(.*?)\*\*/g,
+      '<strong>$1</strong>'
+    );
+
+    // Formatar títulos de textos para questões específicas (591-599)
+    if (questaoId && questaoId >= 591 && questaoId <= 599) {
+      // Detectar e estilizar "Dupla dinâmica" ou "A lógica do humor"
+      textoFormatado = textoFormatado.replace(
+        /(Dupla dinâmica|A lógica do humor)/g,
+        '<div class="titulo-texto">$1</div>'
+      );
+    }
+
+    return textoFormatado;
   }
 
   sortearQuestoes(questoes: Questao[], quantidade: number): Questao[] {

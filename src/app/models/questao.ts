@@ -7,6 +7,8 @@ export interface Questao {
   prova: string;
   banca: string;
   enunciado: string;
+  enunciadoAntes?: string;
+  enunciadoDepois?: string;
   imagem?: string;
   legendaImagem?: string;
   alternativas: { id: number; texto: string }[];

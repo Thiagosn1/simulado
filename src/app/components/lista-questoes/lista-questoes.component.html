@@ -61,9 +61,18 @@
         </div>
       </div>
 
+      <!-- Enunciado antes da imagem (se dividido) -->
       <p
+        *ngIf="questao.enunciadoAntes"
         class="questao-enunciado"
-        [innerHTML]="formatarEnunciado(questao.enunciado)"
+        [innerHTML]="formatarEnunciado(questao.enunciadoAntes, questao.id)"
+      ></p>
+
+      <!-- Enunciado completo (se não dividido) -->
+      <p
+        *ngIf="!questao.enunciadoAntes"
+        class="questao-enunciado"
+        [innerHTML]="formatarEnunciado(questao.enunciado, questao.id)"
       ></p>
 
       <img
@@ -76,6 +85,13 @@
       <p *ngIf="questao.legendaImagem" class="legenda-imagem">
         {{ questao.legendaImagem }}
       </p>
+
+      <!-- Enunciado depois da imagem (se dividido) -->
+      <p
+        *ngIf="questao.enunciadoDepois"
+        class="questao-enunciado"
+        [innerHTML]="formatarEnunciado(questao.enunciadoDepois, questao.id)"
+      ></p>
 
       <div class="alternativas-lista">
         <div
