@@ -117,17 +117,11 @@ export class ListaQuestoesComponent implements OnInit {
               // Se precisar dividir o enunciado (imagem no meio)
               if (imagemConfig.dividirEnunciado) {
                 const partesEnunciado = questao.enunciado.split('\n\n');
-                console.log(`Questão ${questao.id} - Partes:`, partesEnunciado);
                 if (partesEnunciado.length >= 2) {
                   questaoComImagem.enunciadoAntes = partesEnunciado[0];
                   questaoComImagem.enunciadoDepois = partesEnunciado
                     .slice(1)
                     .join('\n\n');
-                  console.log('Dividido:', {
-                    antes: questaoComImagem.enunciadoAntes,
-                    depois: questaoComImagem.enunciadoDepois,
-                    imagem: questaoComImagem.imagem,
-                  });
                 }
               }
 
