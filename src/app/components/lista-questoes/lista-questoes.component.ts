@@ -89,7 +89,13 @@ export class ListaQuestoesComponent implements OnInit {
     this.totalQuestoesRespondidas = 0; // Resetar estatísticas
     const questoesComImagensMap: Record<
       number,
-      { imagem: string; legenda?: string; dividirEnunciado?: boolean }
+      {
+        imagem: string;
+        legenda?: string;
+        dividirEnunciado?: boolean;
+        enunciadoAntes?: string;
+        enunciadoDepois?: string;
+      }
     > = {
       226: { imagem: 'figura1.png' },
       230: { imagem: 'figura2.png' },
@@ -98,7 +104,12 @@ export class ListaQuestoesComponent implements OnInit {
         legenda:
           'Disponível em: https://tirasarmandinho.tumblr.com/post/134547196389/um-novo-recuo-uma-boanotícia-na-sexta-são. Acesso em 10 de novembro de 2025.',
       },
-      590: { imagem: 'figura4.png', dividirEnunciado: true },
+      590: {
+        imagem: 'figura4.png',
+        enunciadoAntes: 'Leia a charge a seguir.',
+        enunciadoDepois:
+          'O gênero textual charge é marcado pelo caráter humorístico e crítico. Na charge acima, a crítica é construída com base na polissemia de um',
+      },
     };
 
     this.questoesService
@@ -114,8 +125,12 @@ export class ListaQuestoesComponent implements OnInit {
                 legendaImagem: imagemConfig.legenda,
               };
 
-              // Se precisar dividir o enunciado (imagem no meio)
-              if (imagemConfig.dividirEnunciado) {
+              // Se enunciadoAntes e enunciadoDepois estão definidos, usar eles
+              if (imagemConfig.enunciadoAntes && imagemConfig.enunciadoDepois) {
+                questaoComImagem.enunciadoAntes = imagemConfig.enunciadoAntes;
+                questaoComImagem.enunciadoDepois = imagemConfig.enunciadoDepois;
+              } else if (imagemConfig.dividirEnunciado) {
+                // Se precisar dividir o enunciado (imagem no meio)
                 const partesEnunciado = questao.enunciado.split('\n\n');
                 if (partesEnunciado.length >= 2) {
                   questaoComImagem.enunciadoAntes = partesEnunciado[0];
@@ -222,10 +237,10 @@ export class ListaQuestoesComponent implements OnInit {
 
     // Formatar títulos de textos para questões específicas (591-599)
     if (questaoId && questaoId >= 591 && questaoId <= 599) {
-      // Detectar títulos entre ** e substituir por div estilizada
+      // Detectar títulos entre ** e substituir por span estilizada
       textoFormatado = textoFormatado.replace(
         /\*\*(Dupla dinâmica|A lógica do humor)\*\*/g,
-        '<div class="titulo-texto">$1</div>'
+        '<span class="titulo-texto">$1</span>'
       );
     }
 
