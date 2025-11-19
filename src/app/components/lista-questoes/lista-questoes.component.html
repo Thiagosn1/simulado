@@ -62,18 +62,18 @@
       </div>
 
       <!-- Enunciado antes da imagem (se dividido) -->
-      <p
+      <div
         *ngIf="questao.enunciadoAntes"
         class="questao-enunciado"
         [innerHTML]="formatarEnunciado(questao.enunciadoAntes, questao.id)"
-      ></p>
+      ></div>
 
       <!-- Enunciado completo (se não dividido) -->
-      <p
+      <div
         *ngIf="!questao.enunciadoAntes"
         class="questao-enunciado"
         [innerHTML]="formatarEnunciado(questao.enunciado, questao.id)"
-      ></p>
+      ></div>
 
       <img
         *ngIf="questao.imagem"
@@ -87,11 +87,11 @@
       </p>
 
       <!-- Enunciado depois da imagem (se dividido) -->
-      <p
+      <div
         *ngIf="questao.enunciadoDepois"
         class="questao-enunciado"
         [innerHTML]="formatarEnunciado(questao.enunciadoDepois, questao.id)"
-      ></p>
+      ></div>
 
       <div class="alternativas-lista">
         <div
