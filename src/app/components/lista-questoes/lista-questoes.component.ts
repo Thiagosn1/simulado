@@ -117,11 +117,17 @@ export class ListaQuestoesComponent implements OnInit {
               // Se precisar dividir o enunciado (imagem no meio)
               if (imagemConfig.dividirEnunciado) {
                 const partesEnunciado = questao.enunciado.split('\n\n');
+                console.log(`Questão ${questao.id} - Partes:`, partesEnunciado);
                 if (partesEnunciado.length >= 2) {
                   questaoComImagem.enunciadoAntes = partesEnunciado[0];
                   questaoComImagem.enunciadoDepois = partesEnunciado
                     .slice(1)
                     .join('\n\n');
+                  console.log('Dividido:', {
+                    antes: questaoComImagem.enunciadoAntes,
+                    depois: questaoComImagem.enunciadoDepois,
+                    imagem: questaoComImagem.imagem,
+                  });
                 }
               }
 
@@ -218,19 +224,22 @@ export class ListaQuestoesComponent implements OnInit {
   }
 
   formatarEnunciado(enunciado: string, questaoId?: number): string {
-    let textoFormatado = enunciado.replace(
-      /\*\*(.*?)\*\*/g,
-      '<strong>$1</strong>'
-    );
+    let textoFormatado = enunciado;
 
     // Formatar títulos de textos para questões específicas (591-599)
     if (questaoId && questaoId >= 591 && questaoId <= 599) {
-      // Detectar e estilizar "Dupla dinâmica" ou "A lógica do humor"
+      // Detectar títulos entre ** e substituir por div estilizada
       textoFormatado = textoFormatado.replace(
-        /(Dupla dinâmica|A lógica do humor)/g,
+        /\*\*(Dupla dinâmica|A lógica do humor)\*\*/g,
         '<div class="titulo-texto">$1</div>'
       );
     }
+
+    // Aplicar formatação de negrito para outros casos
+    textoFormatado = textoFormatado.replace(
+      /\*\*(.*?)\*\*/g,
+      '<strong>$1</strong>'
+    );
 
     return textoFormatado;
   }
