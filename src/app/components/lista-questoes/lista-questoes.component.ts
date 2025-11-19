@@ -244,11 +244,33 @@ export class ListaQuestoesComponent implements OnInit {
       );
     }
 
+    // Formatar frações para questão 601
+    if (questaoId === 601) {
+      textoFormatado = textoFormatado.replace(
+        /(\d+)\n(\d+)/g,
+        '<sup>$1</sup>/<sub>$2</sub>'
+      );
+    }
+
     // Aplicar formatação de negrito para outros casos
     textoFormatado = textoFormatado.replace(
       /\*\*(.*?)\*\*/g,
       '<strong>$1</strong>'
     );
+
+    return textoFormatado;
+  }
+
+  formatarAlternativa(texto: string, questaoId?: number): string {
+    let textoFormatado = texto;
+
+    // Formatar frações para questão 601
+    if (questaoId === 601) {
+      textoFormatado = textoFormatado.replace(
+        /(\d+)\n(\d+)/g,
+        '<sup>$1</sup>/<sub>$2</sub>'
+      );
+    }
 
     return textoFormatado;
   }

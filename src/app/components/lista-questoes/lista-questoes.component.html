@@ -103,7 +103,7 @@
           [class]="obterClasseAlternativa(questao.id, alternativa.id)"
           (click)="selecionarAlternativa(questao.id, alternativa.id)"
         >
-          {{ alternativa.texto }}
+          [innerHTML]="formatarAlternativa(alternativa.texto, questao.id)"
         </div>
       </div>
     </div>
