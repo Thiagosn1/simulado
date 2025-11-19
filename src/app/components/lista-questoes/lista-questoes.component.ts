@@ -95,6 +95,7 @@ export class ListaQuestoesComponent implements OnInit {
         dividirEnunciado?: boolean;
         enunciadoAntes?: string;
         enunciadoDepois?: string;
+        imagemAntes?: boolean;
       }
     > = {
       226: { imagem: 'figura1.png' },
@@ -116,6 +117,20 @@ export class ListaQuestoesComponent implements OnInit {
         enunciadoDepois:
           'A série histórica acima refere-se à precipitação média, em mm, durante o ano em Anápolis. A mediana dessas precipitações é igual a',
       },
+      630: {
+        imagem: 'figura6.png',
+        enunciadoAntes: 'Observe a imagem a seguir.',
+        enunciadoDepois:
+          'A capacidade das unidades administrativas de antever os perigos que se apresentarão nas suas atividades e se preparar previamente para enfrentá-los, diminuindo as incertezas, denomina-se',
+      },
+      643: {
+        imagem: 'figura7.png',
+        imagemAntes: true,
+      },
+      644: {
+        imagem: 'figura7.png',
+        imagemAntes: true,
+      },
     };
 
     this.questoesService
@@ -129,6 +144,7 @@ export class ListaQuestoesComponent implements OnInit {
                 ...questao,
                 imagem: imagemConfig.imagem,
                 legendaImagem: imagemConfig.legenda,
+                imagemAntes: imagemConfig.imagemAntes,
               };
 
               // Se enunciadoAntes e enunciadoDepois estão definidos, usar eles

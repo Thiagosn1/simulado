@@ -61,6 +61,21 @@
         </div>
       </div>
 
+      <!-- Imagem antes do enunciado (se imagemAntes) -->
+      <img
+        *ngIf="questao.imagem && questao.imagemAntes"
+        [src]="'/assets/images/' + questao.imagem"
+        alt="Imagem da questão"
+        class="imagem-questao"
+      />
+
+      <p
+        *ngIf="questao.legendaImagem && questao.imagemAntes"
+        class="legenda-imagem"
+      >
+        {{ questao.legendaImagem }}
+      </p>
+
       <!-- Enunciado antes da imagem (se dividido) -->
       <div
         *ngIf="questao.enunciadoAntes"
@@ -76,13 +91,16 @@
       ></div>
 
       <img
-        *ngIf="questao.imagem"
+        *ngIf="questao.imagem && !questao.imagemAntes"
         [src]="'/assets/images/' + questao.imagem"
         alt="Imagem da questão"
         class="imagem-questao"
       />
 
-      <p *ngIf="questao.legendaImagem" class="legenda-imagem">
+      <p
+        *ngIf="questao.legendaImagem && !questao.imagemAntes"
+        class="legenda-imagem"
+      >
         {{ questao.legendaImagem }}
       </p>
 

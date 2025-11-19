@@ -11,6 +11,7 @@ export interface Questao {
   enunciadoDepois?: string;
   imagem?: string;
   legendaImagem?: string;
+  imagemAntes?: boolean;
   alternativas: { id: number; texto: string }[];
   resposta_correta: number;
 }
