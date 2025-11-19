@@ -110,6 +110,11 @@ export class ListaQuestoesComponent implements OnInit {
         enunciadoDepois:
           'O gênero textual charge é marcado pelo caráter humorístico e crítico. Na charge acima, a crítica é construída com base na polissemia de um',
       },
+      605: {
+        imagem: 'figura5.png',
+        enunciadoAntes: 'Observe a tabela a seguir.',
+        enunciadoDepois: 'A série histórica...',
+      },
     };
 
     this.questoesService
@@ -237,10 +242,10 @@ export class ListaQuestoesComponent implements OnInit {
 
     // Formatar títulos de textos para questões específicas (591-599)
     if (questaoId && questaoId >= 591 && questaoId <= 599) {
-      // Detectar títulos entre ** e substituir por span estilizada
+      // Detectar títulos entre ** e substituir por div estilizada
       textoFormatado = textoFormatado.replace(
         /\*\*(Dupla dinâmica|A lógica do humor)\*\*/g,
-        '<span class="titulo-texto">$1</span>'
+        '<div class="titulo-texto">$1</div>'
       );
     }
 
