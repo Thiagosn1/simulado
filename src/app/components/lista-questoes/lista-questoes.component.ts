@@ -112,6 +112,9 @@ export class ListaQuestoesComponent implements OnInit {
       },
       605: {
         imagem: 'figura5.png',
+        enunciadoAntes: 'Observe a tabela a seguir.',
+        enunciadoDepois:
+          'A série histórica acima refere-se à precipitação média, em mm, durante o ano em Anápolis. A mediana dessas precipitações é igual a',
       },
     };
 
