@@ -17,35 +17,6 @@ type FiltroValues = {
   banca: string;
 };
 
-type Mapeamentos = {
-  banca: { [key: string]: string };
-  cargo: { [key: string]: string };
-  nivel: { [key: string]: string };
-};
-
-const MAPEAMENTOS: Mapeamentos = {
-  banca: {
-    funatec: 'FUNATEC',
-    aroeira: 'Fundação Aroeira',
-    ganzaroli: 'Ganzaroli Assessoria',
-    verbena: 'Instituto Verbena/UFG',
-    itame: 'ITAME',
-    reis: 'Reis & Reis',
-    'nao informada': 'Não informada',
-  },
-  cargo: {
-    'assistente administrativo': 'Assistente Administrativo',
-    'professor de informatica': 'Professor de Informática',
-    'tecnico em informatica': 'Técnico em Informática',
-    'secretario auxiliar': 'Secretário Auxiliar',
-  },
-  nivel: {
-    fundamental: 'Fundamental',
-    medio: 'Médio',
-    superior: 'Superior',
-  },
-};
-
 @Component({
   selector: 'app-filtro',
   standalone: true,
@@ -91,15 +62,7 @@ export class FiltroComponent implements OnInit {
         const filtrosSalvos = localStorage.getItem('filtrosAtuais');
         if (filtrosSalvos) {
           const filtros = JSON.parse(filtrosSalvos);
-
-          // Converter os valores formatados de volta para as chaves do select
-          const filtrosParaForm = {
-            cargo: this.obterChavePorValor('cargo', filtros.cargo || ''),
-            nivel: this.obterChavePorValor('nivel', filtros.nivel || ''),
-            banca: this.obterChavePorValor('banca', filtros.banca || ''),
-          };
-
-          this.filtroForm.patchValue(filtrosParaForm);
+          this.filtroForm.patchValue(filtros);
           this.atualizarOpcoesDisponiveis();
           this.verificarFiltrosAtivos();
         }
@@ -113,26 +76,9 @@ export class FiltroComponent implements OnInit {
     });
   }
 
-  private obterChavePorValor(tipo: keyof Mapeamentos, valor: string): string {
-    if (!valor) return '';
-
-    const mapeamento = MAPEAMENTOS[tipo];
-    const entrada = Object.entries(mapeamento).find(([_, v]) => v === valor);
-    return entrada ? entrada[0] : '';
-  }
-
   aplicarFiltros() {
     const valores = this.filtroForm.value as FiltroValues;
-
-    const filtrosFormatados = Object.entries(valores).reduce(
-      (acc, [key, value]) => ({
-        ...acc,
-        [key]: value ? this.formatarValor(key as keyof Mapeamentos, value) : '',
-      }),
-      {} as Partial<FiltroValues>
-    );
-
-    this.filtroAplicado.emit(filtrosFormatados);
+    this.filtroAplicado.emit(valores);
   }
 
   resetarFiltros() {
@@ -157,12 +103,6 @@ export class FiltroComponent implements OnInit {
     this.temFiltrosAtivos = !!(valores.banca || valores.cargo || valores.nivel);
   }
 
-  private formatarValor(tipo: keyof Mapeamentos, valor: string): string {
-    const mapeamento = MAPEAMENTOS[tipo];
-    const chave = valor.toLowerCase();
-    return mapeamento[chave] || valor;
-  }
-
   private atualizarOpcoesDisponiveis() {
     const valores = this.filtroForm.value as FiltroValues;
 
@@ -174,36 +114,24 @@ export class FiltroComponent implements OnInit {
     // Para cada tipo de filtro, considerar os outros filtros selecionados
     this.todasQuestoes.forEach((q) => {
       // Adicionar BANCA se atende os outros filtros (cargo/nível)
-      const atendeCargoFiltro =
-        !valores.cargo ||
-        q.cargo === this.formatarValor('cargo', valores.cargo);
-      const atendeNivelFiltro =
-        !valores.nivel ||
-        q.nivel === this.formatarValor('nivel', valores.nivel);
+      const atendeCargoFiltro = !valores.cargo || q.cargo === valores.cargo;
+      const atendeNivelFiltro = !valores.nivel || q.nivel === valores.nivel;
 
       if (atendeCargoFiltro && atendeNivelFiltro && q.banca) {
         bancasSet.add(q.banca);
       }
 
       // Adicionar CARGO se atende os outros filtros (banca/nível)
-      const atendeBancaFiltro =
-        !valores.banca ||
-        q.banca === this.formatarValor('banca', valores.banca);
-      const atendeNivelFiltro2 =
-        !valores.nivel ||
-        q.nivel === this.formatarValor('nivel', valores.nivel);
+      const atendeBancaFiltro = !valores.banca || q.banca === valores.banca;
+      const atendeNivelFiltro2 = !valores.nivel || q.nivel === valores.nivel;
 
       if (atendeBancaFiltro && atendeNivelFiltro2 && q.cargo) {
         cargosSet.add(q.cargo);
       }
 
       // Adicionar NÍVEL se atende os outros filtros (banca/cargo)
-      const atendeBancaFiltro2 =
-        !valores.banca ||
-        q.banca === this.formatarValor('banca', valores.banca);
-      const atendeCargoFiltro2 =
-        !valores.cargo ||
-        q.cargo === this.formatarValor('cargo', valores.cargo);
+      const atendeBancaFiltro2 = !valores.banca || q.banca === valores.banca;
+      const atendeCargoFiltro2 = !valores.cargo || q.cargo === valores.cargo;
 
       if (atendeBancaFiltro2 && atendeCargoFiltro2 && q.nivel) {
         niveisSet.add(q.nivel);
@@ -213,15 +141,5 @@ export class FiltroComponent implements OnInit {
     this.bancasDisponiveis = Array.from(bancasSet).sort();
     this.cargosDisponiveis = Array.from(cargosSet).sort();
     this.niveisDisponiveis = Array.from(niveisSet).sort();
-  }
-
-  // Converter valor formatado de volta para a chave do select
-  obterChaveSelect(tipo: keyof Mapeamentos, valorFormatado: string): string {
-    if (!valorFormatado) return '';
-    const mapeamento = MAPEAMENTOS[tipo];
-    const entrada = Object.entries(mapeamento).find(
-      ([_, v]) => v === valorFormatado
-    );
-    return entrada ? entrada[0] : '';
   }
 }

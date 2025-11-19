@@ -85,6 +85,8 @@ export class ListaQuestoesComponent implements OnInit {
     this.questoes = []; // Limpar questões ao iniciar carregamento
     this.mensagem = null;
     this.tipoMensagem = null;
+    this.totalQuestoesDisponiveis = 0; // Resetar estatísticas
+    this.totalQuestoesRespondidas = 0; // Resetar estatísticas
     const questoesComImagensMap: Record<
       number,
       { imagem: string; legenda?: string }
