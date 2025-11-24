@@ -497,6 +497,26 @@ export class ListaQuestoesComponent implements OnInit {
     return alternativa ? alternativa.texto : '';
   }
 
+  obterJustificativa(questao: Questao): string | null {
+    if (!this.resultado || !questao.justificativas) {
+      return null;
+    }
+    const questaoIndex = this.questoes.findIndex((q) => q.id === questao.id);
+    const detalhe = this.resultado.detalhes[questaoIndex];
+    if (!detalhe) {
+      return null;
+    }
+    const respostaSelecionada = detalhe.respostaSelecionada;
+    if (respostaSelecionada === detalhe.respostaCorreta) {
+      // Acertou: mostrar justificativa da correta
+      return questao.justificativas[detalhe.respostaCorreta.toString()];
+    } else if (respostaSelecionada !== undefined) {
+      // Errou: mostrar justificativa da selecionada
+      return questao.justificativas[respostaSelecionada.toString()];
+    }
+    return null;
+  }
+
   sortearNovasQuestoes() {
     this.resultado = null;
     this.alternativaSelecionada = {};

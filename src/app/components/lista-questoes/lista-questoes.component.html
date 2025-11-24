@@ -123,6 +123,15 @@
           [innerHTML]="formatarAlternativa(alternativa.texto, questao.id)"
         ></div>
       </div>
+
+      <!-- Justificativa após correção -->
+      <div
+        *ngIf="resultado && obterJustificativa(questao)"
+        class="justificativa-container"
+      >
+        <div class="justificativa-titulo">Justificativa:</div>
+        <div class="justificativa-texto">{{ obterJustificativa(questao) }}</div>
+      </div>
     </div>
   </div>
 
