@@ -128,6 +128,10 @@
       <div
         *ngIf="resultado && obterJustificativa(questao)"
         class="justificativa-container"
+        [ngClass]="{
+          'justificativa-acerto': obterTipoJustificativa(questao) === 'acerto',
+          'justificativa-erro': obterTipoJustificativa(questao) === 'erro'
+        }"
       >
         <div class="justificativa-titulo">Justificativa:</div>
         <div class="justificativa-texto">{{ obterJustificativa(questao) }}</div>

@@ -517,6 +517,24 @@ export class ListaQuestoesComponent implements OnInit {
     return null;
   }
 
+  obterTipoJustificativa(questao: Questao): 'acerto' | 'erro' | null {
+    if (!this.resultado || !questao.justificativas) {
+      return null;
+    }
+    const questaoIndex = this.questoes.findIndex((q) => q.id === questao.id);
+    const detalhe = this.resultado.detalhes[questaoIndex];
+    if (!detalhe) {
+      return null;
+    }
+    const respostaSelecionada = detalhe.respostaSelecionada;
+    if (respostaSelecionada === detalhe.respostaCorreta) {
+      return 'acerto';
+    } else if (respostaSelecionada !== undefined) {
+      return 'erro';
+    }
+    return null;
+  }
+
   sortearNovasQuestoes() {
     this.resultado = null;
     this.alternativaSelecionada = {};
