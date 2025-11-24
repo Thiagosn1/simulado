@@ -123,19 +123,6 @@
           [innerHTML]="formatarAlternativa(alternativa.texto, questao.id)"
         ></div>
       </div>
-
-      <!-- Justificativa após correção -->
-      <div
-        *ngIf="resultado && obterJustificativa(questao)"
-        class="justificativa-container"
-        [ngClass]="{
-          'justificativa-acerto': obterTipoJustificativa(questao) === 'acerto',
-          'justificativa-erro': obterTipoJustificativa(questao) === 'erro'
-        }"
-      >
-        <div class="justificativa-titulo">Justificativa:</div>
-        <div class="justificativa-texto">{{ obterJustificativa(questao) }}</div>
-      </div>
     </div>
   </div>
 

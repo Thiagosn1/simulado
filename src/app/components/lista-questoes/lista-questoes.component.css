@@ -479,39 +479,6 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.justificativa-container {
-  margin-top: 1rem;
-  padding: 1rem;
-  background-color: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.5rem;
-  border-left: 4px solid #3b82f6;
-
-  &.justificativa-acerto {
-    border-left-color: #1dc85c;
-    background-color: rgba(29, 200, 92, 0.05);
-  }
-
-  &.justificativa-erro {
-    border-left-color: #f03e3e;
-    background-color: rgba(240, 62, 62, 0.05);
-  }
-}
-
-.justificativa-titulo {
-  font-weight: bold;
-  color: #1e293b;
-  margin-bottom: 0.5rem;
-  font-size: 1rem;
-}
-
-.justificativa-texto {
-  color: #374151;
-  line-height: 1.5;
-  font-size: 0.95rem;
-  text-align: justify;
-}
-
 sup,
 sub {
   font-size: 0.75em;

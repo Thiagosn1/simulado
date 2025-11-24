@@ -14,7 +14,6 @@ export interface Questao {
   imagemAntes?: boolean;
   alternativas: { id: number; texto: string }[];
   resposta_correta: number;
-  justificativas?: { [key: string]: string };
 }
 
 export interface Alternativa {
