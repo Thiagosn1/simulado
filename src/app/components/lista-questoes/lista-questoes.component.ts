@@ -131,6 +131,14 @@ export class ListaQuestoesComponent implements OnInit {
         imagem: 'figura7.png',
         imagemAntes: true,
       },
+      674: {
+        imagem: 'figura8.png',
+        imagemAntes: true,
+      },
+      675: {
+        imagem: 'figura8.png',
+        imagemAntes: true,
+      },
     };
 
     this.questoesService
