@@ -139,6 +139,12 @@ export class ListaQuestoesComponent implements OnInit {
         imagem: 'figura8.png',
         imagemAntes: true,
       },
+      738: {
+        imagem: 'figura9.png',
+        enunciadoAntes: 'Observe a figura a seguir.',
+        enunciadoDepois:
+          'A imagem refere-se a conceitos que, além de, nesse contexto, terem sido aplicados ao atendimento ao cidadão, são relacionados à administração. A imagem acima sintetiza respectivamente:',
+      },
     };
 
     this.questoesService
