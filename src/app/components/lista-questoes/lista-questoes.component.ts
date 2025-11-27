@@ -145,6 +145,18 @@ export class ListaQuestoesComponent implements OnInit {
         enunciadoDepois:
           'A imagem refere-se a conceitos que, além de, nesse contexto, terem sido aplicados ao atendimento ao cidadão, são relacionados à administração. A imagem acima sintetiza respectivamente:',
       },
+      742: {
+        imagem: 'figura10.png',
+        enunciadoAntes: 'Leia a charge a seguir.',
+        enunciadoDepois:
+          'De acordo com a norma gramatical culta, qual frase foi adaptada adequadamente a partir das frases da charge acima?',
+      },
+      744: {
+        imagem: 'figura11.png',
+        enunciadoAntes: 'Leia o texto a seguir.',
+        enunciadoDepois:
+          'As variações linguísticas procuram estabelecer uma comunicação em relação a um contexto. Proporcionam relacionar maneiras de como os indivíduos apresentam formas em utilizar essa mesma língua no seu dia a dia. Como é classificada a variação linguística presente no texto supramencionado?',
+      },
     };
 
     this.questoesService
