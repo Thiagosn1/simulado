@@ -157,6 +157,12 @@ export class ListaQuestoesComponent implements OnInit {
         enunciadoDepois:
           'As variações linguísticas procuram estabelecer uma comunicação em relação a um contexto. Proporcionam relacionar maneiras de como os indivíduos apresentam formas em utilizar essa mesma língua no seu dia a dia. Como é classificada a variação linguística presente no texto supramencionado?',
       },
+      768: {
+        imagem: 'figura12.png',
+        enunciadoAntes: 'Leia a tirinha a seguir.',
+        enunciadoDepois:
+          'No contexto da tirinha, o termo “ter pena” é considerado:',
+      },
     };
 
     this.questoesService
